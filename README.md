@@ -4,11 +4,11 @@
 ## Installation
 ```npm install```
 
-#Usage
+# Usage
 *The service is already deployed on heroku*
 - [Try it out](http://covid-rest.herokuapp.com/)
     - *``http://covid-rest.herokuapp.com/``*  
-##Endpoints
+# Endpoints
 - [GET ALL DATA](http://covid-rest.herokuapp.com/)
     - *`http://covid-rest.herokuapp.com/`*
 - [GET BY COUNTRY NAME](http://covid-rest.herokuapp.com/china)
