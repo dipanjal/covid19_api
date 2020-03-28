@@ -13,6 +13,7 @@
     "cheerio": "^1.0.0-rc.3",
     "express": "^4.16.4",
     "lodash": "^4.17.15",
+    "morgan": "^1.10.0",
     "node-cache": "^5.1.0"
   },
   "devDependencies": {

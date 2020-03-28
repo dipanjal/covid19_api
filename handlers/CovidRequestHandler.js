@@ -2,7 +2,7 @@ let apiResponse = require('../models/ApiStatus');
 let covidHelper = require('../service/CovidScrapper');
 let covidService = require('../service/CovidService');
 
-let requestUrl = 'https://www.worldometers.info/coronavirus/'
+let requestUrl = 'https://www.worldometers.info/coronavirus/';
 
 module.exports.getAll = (req, res) => {
     covidService.getAllCountryCovidReportsByUrl(requestUrl)

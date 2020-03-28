@@ -4,11 +4,11 @@ const _ = require('lodash');
 
 let CovidReportModel = require('../models/CovidReportModel');
 let modelConverter = require('../helpers/ModelConverter');
+let covidLogger = require('../logger/CovidCustomLogger');
 
 let apiStatus = require('../models/ApiStatus');
 
 let Privates = {
-
     sanitizeValues: (valueString) => {
         return valueString.trim().replace(new RegExp("[\+,]+","gm"),'');
     },
@@ -77,7 +77,6 @@ let Privates = {
                 .catch(errResponse => {
                     reject(errResponse);
                 });
-
         }));
     },
     parseTableForSpecificCountry: (requestUrl,countryName) => {
@@ -93,14 +92,11 @@ let Privates = {
                 reject(apiStatus.REMOTE_ERROR);
             });
         });
-
     }
-
 };
 
-// module.exports.getCovidDOM = requestUrl => {return Privates.loadPage(requestUrl)};
 module.exports.getAllCountryCovidReportsByUrl = (requestUrl) => {
-    console.log("*** scrapping from web ***");
+    // covidLogger.log();
     return Privates.scrapTableFromRequestUrl(requestUrl);
 };
 module.exports.getCovidReportSummary = (requestUrl) => {
