@@ -1,4 +1,4 @@
-let hour = 2;
+let hour = 1;
 let ttl = 60 * 60 * hour;
 module.exports.CacheSettings = {
     stdTTL: ttl,
@@ -6,3 +6,5 @@ module.exports.CacheSettings = {
     checkperiod: ttl * 0.2 ,
 
 };
+
+module.exports.APPLICATION_PORT = 5000;

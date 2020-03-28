@@ -1,7 +1,8 @@
 const express = require('express'), bodyParser = require('body-parser');
 const app = express();
 const server = require('http').createServer(app);
-const port = 3030;
+const port = require('./configuration/AppSettings').APPLICATION_PORT;
+
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
