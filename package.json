@@ -1,7 +1,7 @@
 {
-  "name": "unsplash-api-project",
+  "name": "covid-19-api-project",
   "version": "1.0.0",
-  "description": "A backend for unsplash APIs",
+  "description": "rest api service corona virus realtime updated data",
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon node app.js"
