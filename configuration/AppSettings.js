@@ -7,4 +7,4 @@ module.exports.CacheSettings = {
 
 };
 
-module.exports.APPLICATION_PORT = 5000;
+module.exports.APPLICATION_PORT = process.env.port || 5000;
