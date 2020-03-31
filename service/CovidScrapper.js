@@ -8,6 +8,8 @@ let covidLogger = require('../logger/CovidCustomLogger');
 
 let apiStatus = require('../models/ApiStatus');
 
+let requestUrl = 'https://www.worldometers.info/coronavirus/';
+
 let Privates = {
     sanitizeValues: (valueString) => {
         return valueString.trim().replace(new RegExp("[\+,]+","gm"),'');
@@ -95,14 +97,13 @@ let Privates = {
     }
 };
 
-module.exports.getAllCountryCovidReportsByUrl = (requestUrl) => {
-    // covidLogger.log();
+module.exports.getAllReportsForToday = () => {
     return Privates.scrapTableFromRequestUrl(requestUrl);
 };
-module.exports.getCovidReportSummary = (requestUrl) => {
+module.exports.getCovidReportSummary = () => {
     return Privates.scrapCovidSummary(requestUrl);
 };
-module.exports.getReportByCountry = (requestUrl, countryName) => {
+module.exports.getReportByCountry = (countryName) => {
     console.log("*** scrapping country from web ***");
     return Privates.parseTableForSpecificCountry(requestUrl, countryName);
 };

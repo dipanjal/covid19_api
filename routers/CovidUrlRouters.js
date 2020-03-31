@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const covidApi = require('./CovidRequestHandler');
+const covidApi = require('../handlers/CovidRequestHandler');
 
 router.get('/',(req,res)=> covidApi.getAll(res, res) );
 router.get('/summary',(req,res)=> covidApi.getSummary(res, res));
