@@ -17,24 +17,15 @@ let cacheErrors = {
 };
 
 module.exports.cacheKeys = {
-    ALL_COVID_DATA: 'covid_data_all',
-    COVID_SUMMARY: 'covid_summary'
+    ALL_COVID_DATA_TODAY: 'covid_data_all_today',
+    ALL_COVID_DATA_YESTERDAY: 'covid_data_all_yesterday',
+    COVID_SUMMARY_TODAY: 'covid_summary_today',
+    COVID_SUMMARY_YESTERDAY: 'covid_summary_yesterday'
 };
 
-/*let Private = {
-    init: () => {
-        if(!covidCache){
-            covidCache = new NodeCache({
-                stdTTL: cacheSettings.stdTTL,
-                checkperiod: cacheSettings.checkperiod
-            });
-        }
-    }
-};*/
-
-module.exports.save = (dataModels, key = this.cacheKeys.ALL_COVID_DATA) => {
+module.exports.save = (dataModels, key) => {
     return new Promise(((resolve, reject) => {
-        // let cacheableModel = modelConverter.DataModelsToCacheModels(key, dataModels);
+        console.log("*** updating cache ***");
         if(!modelConverter.isEmpty(dataModels)){
             let status = covidCache.set(key , dataModels);
             if(status){
@@ -52,11 +43,11 @@ module.exports.save = (dataModels, key = this.cacheKeys.ALL_COVID_DATA) => {
 };
 
 
-module.exports.getAllFromCache = () => {
+let getAllReportFromCache = (key) => {
     return new Promise(((resolve, reject) => {
-        let dataModels = covidCache.get(this.cacheKeys.ALL_COVID_DATA);
+        let dataModels = covidCache.get(key);
         if(!modelConverter.isEmpty(dataModels)){
-            console.log('*** loaading from cache ***');
+            console.log('*** loading reports from cache ***');
             apiStatus.SUCCESS.data = dataModels;
             resolve(apiStatus.SUCCESS);
         }else{
@@ -65,15 +56,28 @@ module.exports.getAllFromCache = () => {
     }));
 };
 
-module.exports.getByCountryFromCache = (countryName) => {
+module.exports.getAllReportForTodayFromCache = () => {
+    return getAllReportFromCache(this.cacheKeys.ALL_COVID_DATA_TODAY);
+};
+module.exports.getAllReportForYesterdayFromCache = () => {
+    return getAllReportFromCache(this.cacheKeys.ALL_COVID_DATA_YESTERDAY);
+};
+
+module.exports.getByCountryFromCache = (countryName, yesterdayFlag = false ) => {
     return new Promise(((resolve, reject) => {
-        console.log("*** loading country from cache ***");
         let data = covidCache.get(countryName.toLowerCase()); //fetching from country cache
         if(modelConverter.isEmpty(data)){
-            this.getAllFromCache().then(allDataSuccessResponse => {
-                let dataSingle = _.find(allDataSuccessResponse.data, {country_name: countryName.toLocaleLowerCase()});
+            console.log("*** loading country from cache ***");
+            let dynamicFunctionCaller = yesterdayFlag ?
+                this.getAllReportForTodayFromCache() :
+                this.getAllReportForYesterdayFromCache();
+            let keySuffix = yesterdayFlag ? '_yesterday':'';
+            let keyToSearch = countryName.toLowerCase()+keySuffix;
+
+            dynamicFunctionCaller().then(allDataSuccessResponse => {
+                let dataSingle = _.find(allDataSuccessResponse.data, {country_name: keyToSearch});
                 if(dataSingle){
-                    this.save(dataSingle, countryName); //country wise caching
+                    this.save(dataSingle, keyToSearch); //country wise caching
                     apiStatus.SUCCESS.data = dataSingle;
                     resolve(apiStatus.SUCCESS);
                 }else{
@@ -87,16 +91,23 @@ module.exports.getByCountryFromCache = (countryName) => {
     }))
 };
 
-module.exports.getSummaryFromCache = () => {
+let getSummaryFromCache = (key) => {
     return new Promise(((resolve, reject) => {
-        let dataModels = covidCache.get(this.cacheKeys.COVID_SUMMARY);
+        console.log('*** loading summary from cache ***');
+        let dataModels = covidCache.get(key);
         if(!modelConverter.isEmpty(dataModels)){
-            console.log('*** loading summary from cache ***');
             apiStatus.SUCCESS.data = dataModels;
             resolve(apiStatus.SUCCESS);
         }else{
             reject(apiStatus.RECORD_NOT_FOUND);
         }
     }));
+};
+
+module.exports.getSummaryForTodayFromCache = () => {
+    return getSummaryFromCache(this.cacheKeys.COVID_SUMMARY_TODAY);
+};
+module.exports.getSummaryForYesterdayFromCache = () => {
+    return getSummaryFromCache(this.cacheKeys.COVID_SUMMARY_YESTERDAY);
 };
 

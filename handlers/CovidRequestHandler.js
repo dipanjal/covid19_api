@@ -4,14 +4,27 @@ let covidService = require('../service/CovidService');
 
 
 
-module.exports.getAll = (req, res) => {
-    covidService.getAllCountryCovidReportsByUrl()
+module.exports.getAllForToday = (req, res) => {
+    covidService.getAllCountryReportsForToday()
         .then(covidReportsResp => apiResponse.createResponse2(covidReportsResp, res))
         .catch(errResponse => apiResponse.createResponse2(errResponse, res));
 };
 
-module.exports.getSummary = (req, res) => {
-    covidService.getCovidReportSummary()
+module.exports.getAllForYesterday = (req, res) => {
+    covidService.getAllCountryReportsForYesterday()
+        .then(covidReportsResp => apiResponse.createResponse2(covidReportsResp, res))
+        .catch(errResponse => apiResponse.createResponse2(errResponse, res));
+};
+
+module.exports.getSummaryForToday = (req, res) => {
+    covidService.getCovidSummaryForToday()
+        .then(covidSummaryResp => apiResponse.createResponse2(covidSummaryResp, res))
+        .catch(errResponse => apiResponse.createResponse2(errResponse, res));
+};
+
+
+module.exports.getSummaryForYesterday = (req, res) => {
+    covidService.getCovidSummaryForYesterday()
         .then(covidSummaryResp => apiResponse.createResponse2(covidSummaryResp, res))
         .catch(errResponse => apiResponse.createResponse2(errResponse, res));
 };
