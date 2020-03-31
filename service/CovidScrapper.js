@@ -104,21 +104,29 @@ let Privates = {
         }
     },
 
-
-    parseTableForSpecificCountry: (requestUrl,countryName) => {
-        return new Promise((resolve, reject) => {
-            Privates.Report.scrapTableFromRequestUrl(requestUrl).then(response => {
-                let data = _.find(response.data, {country_name: countryName.toLocaleLowerCase()});
-                if(!modelConverter.isEmpty(data)){
-                    apiStatus.SUCCESS.data = data;
-                    resolve(apiStatus.SUCCESS);
-                }else reject(apiStatus.RECORD_NOT_FOUND);
-            }).catch(err => {
-                apiStatus.REMOTE_ERROR.message = err.message || apiStatus.REMOTE_ERROR.message;
-                reject(apiStatus.REMOTE_ERROR);
+    Country:{
+        parseTableForSpecificCountry: (requestUrl,countryName, yesterdayFlag) => {
+            return new Promise((resolve, reject) => {
+                Privates.Report.scrapTableFromRequestUrl(requestUrl, yesterdayFlag).then(response => {
+                    let data = _.find(response.data, {country_name: countryName.toLocaleLowerCase()});
+                    if(!modelConverter.isEmpty(data)){
+                        apiStatus.SUCCESS.data = data;
+                        resolve(apiStatus.SUCCESS);
+                    }else reject(apiStatus.RECORD_NOT_FOUND);
+                }).catch(err => {
+                    apiStatus.REMOTE_ERROR.message = err.message || apiStatus.REMOTE_ERROR.message;
+                    reject(apiStatus.REMOTE_ERROR);
+                });
             });
-        });
+        },
+        scrapCountrySpecificDataForToday: (requestUrl, countryName) => {
+            return Privates.Country.parseTableForSpecificCountry(requestUrl, countryName);
+        },
+        scrapCountrySpecificDataForYesterday: (requestUrl, countryName) => {
+            return Privates.Country.parseTableForSpecificCountry(requestUrl, countryName, true);
+        }
     }
+
 };
 
 module.exports.getAllReportsForTodayFromScrapper = () => {
@@ -140,6 +148,9 @@ module.exports.getSummaryForYesterdayFromScrapper = () => {
     return Privates.Summary.scrapSummaryForYesterday(requestUrl);
 };
 
-module.exports.getReportByCountryFromScrapper = (countryName) => {
-    return Privates.parseTableForSpecificCountry(requestUrl, countryName);
+module.exports.getReportByCountryFroTodayFromScrapper = (countryName) => {
+    return Privates.Country.scrapCountrySpecificDataForToday(requestUrl, countryName);
+};
+module.exports.getReportByCountryForYesterdayFromScrapper = (countryName) => {
+    return Privates.Country.scrapCountrySpecificDataForYesterday(requestUrl, countryName);
 };

@@ -59,14 +59,30 @@ module.exports.getCovidSummaryForYesterday = () => {
     }))
 };
 
-module.exports.getReportByCountry = (countryName) => {
+module.exports.getReportByCountryForToday = (countryName) => {
     return new Promise(((resolve, reject) => {
-        cacheService.getByCountryFromCache(countryName)
+        cacheService.getReportByCountryForTodayFromCache(countryName)
             .then(dataResposne => resolve(dataResposne))
             .catch(errResponse => {
-                covidScrapper.getReportByCountryFromScrapper(countryName)
+                covidScrapper.getReportByCountryFroTodayFromScrapper(countryName)
                     .then(dataResponse => {
                         return cacheService.save(dataResponse.data, dataResponse.data.country_name);
+                    }).then(successResp => resolve(successResp))
+                    .catch(errResp => reject(errResp));
+            })
+    }));
+};
+
+module.exports.getReportByCountryForYesterday = (countryName) => {
+    return new Promise(((resolve, reject) => {
+        let suffix = '_yesterday';
+        cacheService.getReportByCountryForYesterdayFromCache(countryName)
+            .then(dataResposne => resolve(dataResposne))
+            .catch(errResponse => {
+                covidScrapper.getReportByCountryForYesterdayFromScrapper(countryName)
+                    .then(dataResponse => {
+                        let key = dataResponse.data.country_name+suffix;
+                        return cacheService.save(dataResponse.data, key);
                     }).then(successResp => resolve(successResp))
                     .catch(errResp => reject(errResp));
             })

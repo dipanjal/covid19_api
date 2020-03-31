@@ -63,34 +63,6 @@ module.exports.getAllReportForYesterdayFromCache = () => {
     return getAllReportFromCache(this.cacheKeys.ALL_COVID_DATA_YESTERDAY);
 };
 
-module.exports.getByCountryFromCache = (countryName, yesterdayFlag = false ) => {
-    return new Promise(((resolve, reject) => {
-        let data = covidCache.get(countryName.toLowerCase()); //fetching from country cache
-        if(modelConverter.isEmpty(data)){
-            console.log("*** loading country from cache ***");
-            let dynamicFunctionCaller = yesterdayFlag ?
-                this.getAllReportForTodayFromCache() :
-                this.getAllReportForYesterdayFromCache();
-            let keySuffix = yesterdayFlag ? '_yesterday':'';
-            let keyToSearch = countryName.toLowerCase()+keySuffix;
-
-            dynamicFunctionCaller().then(allDataSuccessResponse => {
-                let dataSingle = _.find(allDataSuccessResponse.data, {country_name: keyToSearch});
-                if(dataSingle){
-                    this.save(dataSingle, keyToSearch); //country wise caching
-                    apiStatus.SUCCESS.data = dataSingle;
-                    resolve(apiStatus.SUCCESS);
-                }else{
-                    reject(apiStatus.RECORD_NOT_FOUND);
-                }
-            }).catch(err => reject(err))
-        }else{
-            apiStatus.SUCCESS.data = data;
-            resolve(apiStatus.SUCCESS);
-        }
-    }))
-};
-
 let getSummaryFromCache = (key) => {
     return new Promise(((resolve, reject) => {
         console.log('*** loading summary from cache ***');
@@ -109,5 +81,42 @@ module.exports.getSummaryForTodayFromCache = () => {
 };
 module.exports.getSummaryForYesterdayFromCache = () => {
     return getSummaryFromCache(this.cacheKeys.COVID_SUMMARY_YESTERDAY);
+};
+
+let getByCountryFromCache = (countryName, yesterdayFlag = false ) => {
+    return new Promise(((resolve, reject) => {
+        let keySuffix = yesterdayFlag ? '_yesterday':'';
+        let keyToSearch = countryName.toLowerCase()+keySuffix;
+        let data = covidCache.get(keyToSearch); //fetching from country cache
+
+        if(modelConverter.isEmpty(data)){
+            console.log("*** loading country from cache ***");
+            let dynamicFunctionCaller = yesterdayFlag ?
+                this.getAllReportForYesterdayFromCache : this.getAllReportForTodayFromCache;
+
+            dynamicFunctionCaller().then(allDataSuccessResponse => {
+                let dataSingle = _.find(allDataSuccessResponse.data, {country_name: keyToSearch});
+                if(dataSingle){
+                    this.save(dataSingle, keyToSearch); //country wise caching
+                    apiStatus.SUCCESS.data = dataSingle;
+                    resolve(apiStatus.SUCCESS);
+                }else{
+                    reject(apiStatus.RECORD_NOT_FOUND);
+                }
+            }).catch(err => reject(err))
+        }else{
+            console.log("*** loading country from cache ***");
+            apiStatus.SUCCESS.data = data;
+            resolve(apiStatus.SUCCESS);
+        }
+    }))
+};
+
+module.exports.getReportByCountryForTodayFromCache = (countryName) => {
+    return getByCountryFromCache(countryName);
+};
+
+module.exports.getReportByCountryForYesterdayFromCache = (countryName) => {
+    return getByCountryFromCache(countryName, true);
 };
 

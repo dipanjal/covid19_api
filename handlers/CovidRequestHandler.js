@@ -29,8 +29,14 @@ module.exports.getSummaryForYesterday = (req, res) => {
         .catch(errResponse => apiResponse.createResponse2(errResponse, res));
 };
 
-module.exports.getByCountryName = (req, res) => {
-    covidService.getReportByCountry(req.params.country.toLowerCase())
+module.exports.getByCountryNameForToday = (req, res) => {
+    covidService.getReportByCountryForToday(req.params.country.toLowerCase())
+        .then(dataResponse => apiResponse.createResponse2(dataResponse, res))
+        .catch(errResponse => apiResponse.createResponse2(errResponse, res));
+};
+
+module.exports.getByCountryNameForYesterday = (req, res) => {
+    covidService.getReportByCountryForYesterday(req.params.country.toLowerCase())
         .then(dataResponse => apiResponse.createResponse2(dataResponse, res))
         .catch(errResponse => apiResponse.createResponse2(errResponse, res));
 };
