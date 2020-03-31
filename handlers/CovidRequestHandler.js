@@ -4,20 +4,39 @@ let covidService = require('../service/CovidService');
 
 
 
-module.exports.getAll = (req, res) => {
-    covidService.getAllCountryCovidReportsByUrl()
+module.exports.getAllForToday = (req, res) => {
+    covidService.getAllCountryReportsForToday()
         .then(covidReportsResp => apiResponse.createResponse2(covidReportsResp, res))
         .catch(errResponse => apiResponse.createResponse2(errResponse, res));
 };
 
-module.exports.getSummary = (req, res) => {
-    covidService.getCovidReportSummary()
+module.exports.getAllForYesterday = (req, res) => {
+    covidService.getAllCountryReportsForYesterday()
+        .then(covidReportsResp => apiResponse.createResponse2(covidReportsResp, res))
+        .catch(errResponse => apiResponse.createResponse2(errResponse, res));
+};
+
+module.exports.getSummaryForToday = (req, res) => {
+    covidService.getCovidSummaryForToday()
         .then(covidSummaryResp => apiResponse.createResponse2(covidSummaryResp, res))
         .catch(errResponse => apiResponse.createResponse2(errResponse, res));
 };
 
-module.exports.getByCountryName = (req, res) => {
-    covidService.getReportByCountry(req.params.country.toLowerCase())
+
+module.exports.getSummaryForYesterday = (req, res) => {
+    covidService.getCovidSummaryForYesterday()
+        .then(covidSummaryResp => apiResponse.createResponse2(covidSummaryResp, res))
+        .catch(errResponse => apiResponse.createResponse2(errResponse, res));
+};
+
+module.exports.getByCountryNameForToday = (req, res) => {
+    covidService.getReportByCountryForToday(req.params.country.toLowerCase())
+        .then(dataResponse => apiResponse.createResponse2(dataResponse, res))
+        .catch(errResponse => apiResponse.createResponse2(errResponse, res));
+};
+
+module.exports.getByCountryNameForYesterday = (req, res) => {
+    covidService.getReportByCountryForYesterday(req.params.country.toLowerCase())
         .then(dataResponse => apiResponse.createResponse2(dataResponse, res))
         .catch(errResponse => apiResponse.createResponse2(errResponse, res));
 };
