@@ -1,9 +1,8 @@
 const express = require('express'), bodyParser = require('body-parser');
 const app = express();
-// const server = require('http').createServer(app);
 const port = require('./configuration/AppSettings').APPLICATION_PORT;
 const morgan = require('morgan');
-const morgarTokens = require('./logger/MorganCustomTokens');
+const morganLogger = require('./logger/MorganLogger');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -20,7 +19,8 @@ app.use(bodyParser.json());
 /**
  * registering morgan logger
  */
-app.use(morgan(':host :method :url :status - :response-time ms'));
+
+app.use(morgan(morganLogger.logFormat));
 
 app.use(require('./routers/BaseRouter'));
 app.listen(port, () => console.log(`listening: ${port}`));
