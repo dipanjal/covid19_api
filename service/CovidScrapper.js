@@ -8,12 +8,15 @@ let covidLogger = require('../logger/CovidCustomLogger');
 
 let apiStatus = require('../models/ApiStatus');
 
-let Privates = {
+let requestUrl = 'https://www.worldometers.info/coronavirus/';
+
+let CoreModule = {
     sanitizeValues: (valueString) => {
         return valueString.trim().replace(new RegExp("[\+,]+","gm"),'');
     },
     loadPage: (requestUrl) => {
         return new Promise((resolve, reject) => {
+            console.log("*** scrapping from web ***");
             axios.get(requestUrl).then(response => {
                 resolve(response.data);
             }).catch(err => {
@@ -22,13 +25,14 @@ let Privates = {
             });
         })
     },
-    scrapTableFromDom: (dom, childNo = 0) => {
+    scrapTableFromDom: (dom, childNo = 0, yesterday = false) => {
         return new Promise((resolve, reject) => {
             let $ = cheerio.load(dom);
             let modelKeys = Object.keys(CovidReportModel);
             let covidReports = [];
             try{
-                let tbody = $('#main_table_countries_today tbody').eq(childNo);
+                let tbody = yesterday ? $('#main_table_countries_yesterday tbody').eq(childNo):
+                    $('#main_table_countries_today tbody').eq(childNo);
 
                 if(!tbody.length) reject(apiStatus.RECORD_NOT_FOUND);
 
@@ -37,8 +41,8 @@ let Privates = {
                     $(tr).find('td').each((i,td)=>{
                         if(i < modelKeys.length){
                             let key = modelKeys[i];
-                            let value = Privates.sanitizeValues($(td).text()).toLowerCase();
-                            if(key && value) data[key] = value;
+                            let value = CoreModule.sanitizeValues($(td).text()).toLowerCase();
+                            if(key) data[key] = value ? value : '';
                         }
                     });
                     covidReports.push(data);
@@ -50,59 +54,103 @@ let Privates = {
                 reject(apiStatus.RECORD_NOT_FOUND);
             }
         });
-    },
-    scrapTableFromRequestUrl: (reqUrl) => {
-        return new Promise(((resolve, reject) => {
-            Privates.loadPage(reqUrl)
-                .then(dom => {return Privates.scrapTableFromDom(dom, 0)})
-                .then(covidReportsSuccessResponse => {
-                    resolve(covidReportsSuccessResponse);
-                })
-                .catch(errResponse => {
-                    reject(errResponse);
-                });
-
-        }));
-    },
-    scrapCovidSummary: (reqUrl) => {
-        return new Promise(((resolve, reject) => {
-            Privates.loadPage(reqUrl)
-                .then(dom => {return Privates.scrapTableFromDom(dom,1)})
-                .then(covidReportsSuccessResponse => {
-                    let obj = covidReportsSuccessResponse.data[0];
-                    obj.country_name = '';
-                    covidReportsSuccessResponse.data = obj;
-                    resolve(covidReportsSuccessResponse);
-                })
-                .catch(errResponse => {
-                    reject(errResponse);
-                });
-        }));
-    },
-    parseTableForSpecificCountry: (requestUrl,countryName) => {
-        return new Promise((resolve, reject) => {
-            Privates.scrapTableFromRequestUrl(requestUrl).then(response => {
-                let data = _.find(response.data, {country_name: countryName.toLocaleLowerCase()});
-                if(!modelConverter.isEmpty(data)){
-                    apiStatus.SUCCESS.data = data;
-                    resolve(apiStatus.SUCCESS);
-                }else reject(apiStatus.RECORD_NOT_FOUND);
-            }).catch(err => {
-                apiStatus.REMOTE_ERROR.message = err.message || apiStatus.REMOTE_ERROR.message;
-                reject(apiStatus.REMOTE_ERROR);
-            });
-        });
     }
 };
 
-module.exports.getAllCountryCovidReportsByUrl = (requestUrl) => {
-    // covidLogger.log();
-    return Privates.scrapTableFromRequestUrl(requestUrl);
+let Privates = {
+    Report:{
+        scrapTableFromRequestUrl: (reqUrl, yesterdayFlag = false) => {
+            return new Promise(((resolve, reject) => {
+                CoreModule.loadPage(reqUrl)
+                    .then(dom => {return CoreModule.scrapTableFromDom(dom, 0, yesterdayFlag)})
+                    .then(covidReportsSuccessResponse => {
+                        resolve(covidReportsSuccessResponse);
+                    })
+                    .catch(errResponse => {
+                        reject(errResponse);
+                    });
+            }));
+        },
+        scrapReportForToday: (reqUrl) => {
+            return Privates.Report.scrapTableFromRequestUrl(reqUrl);
+        },
+        scrapReportForYesterday: (reqUrl) => {
+            return Privates.Report.scrapTableFromRequestUrl(reqUrl, true);
+        }
+    },
+
+    Summary : {
+        scrapCovidSummaryFromUrl: (reqUrl, yesterdayFlag = false) => {
+            return new Promise(((resolve, reject) => {
+                CoreModule.loadPage(reqUrl)
+                    .then(dom => {return CoreModule.scrapTableFromDom(dom,1, yesterdayFlag)})
+                    .then(covidReportsSuccessResponse => {
+                        let obj = covidReportsSuccessResponse.data[0];
+                        obj.country_name = '';
+                        covidReportsSuccessResponse.data = obj;
+                        resolve(covidReportsSuccessResponse);
+                    })
+                    .catch(errResponse => {
+                        reject(errResponse);
+                    });
+            }));
+        },
+
+        scrapSummaryForToday: (reqUrl) => {
+            return Privates.Summary.scrapCovidSummaryFromUrl(reqUrl);
+        },
+        scrapSummaryForYesterday: (reqUrl) => {
+            return Privates.Summary.scrapCovidSummaryFromUrl(reqUrl, true);
+        }
+    },
+
+    Country:{
+        parseTableForSpecificCountry: (requestUrl,countryName, yesterdayFlag) => {
+            return new Promise((resolve, reject) => {
+                Privates.Report.scrapTableFromRequestUrl(requestUrl, yesterdayFlag).then(response => {
+                    let data = _.find(response.data, {country_name: countryName.toLocaleLowerCase()});
+                    if(!modelConverter.isEmpty(data)){
+                        apiStatus.SUCCESS.data = data;
+                        resolve(apiStatus.SUCCESS);
+                    }else reject(apiStatus.RECORD_NOT_FOUND);
+                }).catch(err => {
+                    apiStatus.REMOTE_ERROR.message = err.message || apiStatus.REMOTE_ERROR.message;
+                    reject(apiStatus.REMOTE_ERROR);
+                });
+            });
+        },
+        scrapCountrySpecificDataForToday: (requestUrl, countryName) => {
+            return Privates.Country.parseTableForSpecificCountry(requestUrl, countryName);
+        },
+        scrapCountrySpecificDataForYesterday: (requestUrl, countryName) => {
+            return Privates.Country.parseTableForSpecificCountry(requestUrl, countryName, true);
+        }
+    }
+
 };
-module.exports.getCovidReportSummary = (requestUrl) => {
-    return Privates.scrapCovidSummary(requestUrl);
+
+module.exports.getAllReportsForTodayFromScrapper = () => {
+    return Privates.Report.scrapReportForToday(requestUrl);
 };
-module.exports.getReportByCountry = (requestUrl, countryName) => {
-    console.log("*** scrapping country from web ***");
-    return Privates.parseTableForSpecificCountry(requestUrl, countryName);
+
+module.exports.getAllReportsForYesterdayFromScrapper = () => {
+    return Privates.Report.scrapReportForYesterday(requestUrl);
+};
+
+/*module.exports.getCovidReportSummaryFromScrapper = () => {
+    return Privates.scrapCovidSummaryFromUrl(requestUrl);
+};*/
+module.exports.getSummaryForTodayFromScrapper = () => {
+    return Privates.Summary.scrapSummaryForToday(requestUrl);
+};
+
+module.exports.getSummaryForYesterdayFromScrapper = () => {
+    return Privates.Summary.scrapSummaryForYesterday(requestUrl);
+};
+
+module.exports.getReportByCountryFroTodayFromScrapper = (countryName) => {
+    return Privates.Country.scrapCountrySpecificDataForToday(requestUrl, countryName);
+};
+module.exports.getReportByCountryForYesterdayFromScrapper = (countryName) => {
+    return Privates.Country.scrapCountrySpecificDataForYesterday(requestUrl, countryName);
 };

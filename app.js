@@ -1,6 +1,6 @@
 const express = require('express'), bodyParser = require('body-parser');
 const app = express();
-const server = require('http').createServer(app);
+// const server = require('http').createServer(app);
 const port = require('./configuration/AppSettings').APPLICATION_PORT;
 const morgan = require('morgan');
 const morgarTokens = require('./logger/MorganCustomTokens');
@@ -23,4 +23,4 @@ app.use(bodyParser.json());
 app.use(morgan(':host :method :url :status - :response-time ms'));
 
 app.use(require('./routers/BaseRouter'));
-server.listen(port, () => console.log(`listening: ${port}`));
+app.listen(port, () => console.log(`listening: ${port}`));
