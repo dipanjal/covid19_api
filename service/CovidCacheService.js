@@ -3,7 +3,7 @@ const cacheSettings = require('../configuration/AppSettings').CacheSettings;
 const modelConverter = require('../helpers/ModelConverter');
 const _ = require('lodash');
 
-const apiStatus = require('../models/ApiStatus');
+const apiResponse = require('../models/ApiStatus');
 const covidLogger = require('../logger/CovidCustomLogger');
 
 let covidCache = new NodeCache({
@@ -29,14 +29,14 @@ module.exports.save = (dataModels, key) => {
         if(!modelConverter.isEmpty(dataModels)){
             let status = covidCache.set(key , dataModels);
             if(status){
-                apiStatus.SUCCESS.data = dataModels;
-                resolve(apiStatus.SUCCESS)
+                apiResponse.SUCCESS.data = dataModels;
+                resolve(apiResponse.SUCCESS)
             }else{
-                apiStatus.INTERNAL_SERVER_ERROR.message = cacheErrors.SAVE_ERROR;
-                reject(apiStatus.INTERNAL_SERVER_ERROR);
+                apiResponse.INTERNAL_SERVER_ERROR.message = cacheErrors.SAVE_ERROR;
+                reject(apiResponse.INTERNAL_SERVER_ERROR);
             }
         }else{
-            reject(apiStatus.RECORD_NOT_FOUND);
+            reject(apiResponse.RECORD_NOT_FOUND);
         }
 
     }))
@@ -48,10 +48,10 @@ let getAllReportFromCache = (key) => {
         let dataModels = covidCache.get(key);
         if(!modelConverter.isEmpty(dataModels)){
             console.log('*** loading reports from cache ***');
-            apiStatus.SUCCESS.data = dataModels;
-            resolve(apiStatus.SUCCESS);
+            apiResponse.SUCCESS.data = dataModels;
+            resolve(apiResponse.SUCCESS);
         }else{
-            reject(apiStatus.RECORD_NOT_FOUND);
+            reject(apiResponse.RECORD_NOT_FOUND);
         }
     }));
 };
@@ -68,10 +68,10 @@ let getSummaryFromCache = (key) => {
         console.log('*** loading summary from cache ***');
         let dataModels = covidCache.get(key);
         if(!modelConverter.isEmpty(dataModels)){
-            apiStatus.SUCCESS.data = dataModels;
-            resolve(apiStatus.SUCCESS);
+            apiResponse.SUCCESS.data = dataModels;
+            resolve(apiResponse.SUCCESS);
         }else{
-            reject(apiStatus.RECORD_NOT_FOUND);
+            reject(apiResponse.RECORD_NOT_FOUND);
         }
     }));
 };
@@ -98,16 +98,16 @@ let getByCountryFromCache = (countryName, yesterdayFlag = false ) => {
                 let dataSingle = _.find(allDataSuccessResponse.data, {country_name: keyToSearch});
                 if(dataSingle){
                     this.save(dataSingle, keyToSearch); //country wise caching
-                    apiStatus.SUCCESS.data = dataSingle;
-                    resolve(apiStatus.SUCCESS);
+                    apiResponse.SUCCESS.data = dataSingle;
+                    resolve(apiResponse.SUCCESS);
                 }else{
-                    reject(apiStatus.RECORD_NOT_FOUND);
+                    reject(apiResponse.RECORD_NOT_FOUND);
                 }
             }).catch(err => reject(err))
         }else{
             console.log("*** loading country from cache ***");
-            apiStatus.SUCCESS.data = data;
-            resolve(apiStatus.SUCCESS);
+            apiResponse.SUCCESS.data = data;
+            resolve(apiResponse.SUCCESS);
         }
     }))
 };

@@ -4,7 +4,11 @@ module.exports.CacheSettings = {
     stdTTL: ttl,
     ttl:ttl,
     checkperiod: ttl * 0.2 ,
+};
 
+module.exports.DBSettings = {
+    maxTTL: 5,
+    unitOfTime: 'hours'
 };
 
 module.exports.APPLICATION_PORT = process.env.PORT || 5000;

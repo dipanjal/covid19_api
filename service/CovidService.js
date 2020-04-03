@@ -1,18 +1,32 @@
 let covidScrapper = require('./CovidScrapper');
 let cacheService = require('./CovidCacheService');
 let modelConverter = require('../helpers/ModelConverter');
-let apiStatus = require('../models/ApiStatus');
+let apiResponse = require('../models/ApiStatus');
+let covidDBService = require('./CovidDBService');
+
+const Private = {
+    getFromScrapperAndUpdate: () => {
+        return new Promise((resolve, reject) => {
+            covidScrapper.getAllReportsForTodayFromScrapper()
+                .then(scrappedResponse => {
+                    resolve(scrappedResponse);
+                    cacheService.save(scrappedResponse.data, cacheService.cacheKeys.ALL_COVID_DATA_TODAY);
+                    covidDBService.saveReportsInDB(scrappedResponse.data);
+                }).catch(errResponse => reject(errResponse))
+        });
+    }
+}
 
 module.exports.getAllCountryReportsForToday = () => {
     return new Promise(((resolve, reject) => {
         cacheService.getAllReportForTodayFromCache()
             .then(cachedResponse => resolve(cachedResponse))
             .catch( cacheErrResponse => {
-                covidScrapper.getAllReportsForTodayFromScrapper()
-                    .then(scrappedResponse => {
-                        return cacheService.save(scrappedResponse.data, cacheService.cacheKeys.ALL_COVID_DATA_TODAY);
-                    }).then(successResponse => resolve(successResponse))
-                    .catch(errResponse => reject(errResponse));
+                covidDBService.getReportForTodayFromDB().then(dbResponse => {
+                    resolve(dbResponse);
+                }).catch(errResponse => {
+                    Private.getFromScrapperAndUpdate().then(response => resolve(response)).catch(err => reject(err));
+                })
             });
     }));
 };
@@ -55,7 +69,6 @@ module.exports.getCovidSummaryForYesterday = () => {
                 resolve(scrappedResponse);
             }).catch(errResp => resolve(errResp));
         });
-
     }))
 };
 
