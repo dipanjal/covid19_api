@@ -13,8 +13,8 @@ let covidDailyReportSchema = new Schema({
         total_recovered: String,
         active_cases: String,
         critical_cases: String,
-        tot_cases_per_million: String,
-        tot_death_per_million: String,
+        total_cases_per_million: String,
+        total_death_per_million: String,
     }]
 },{timestamps: true});
 covidDailyReportSchema.index({_id: -1},{createdAt: -1});

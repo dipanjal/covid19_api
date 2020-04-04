@@ -1,10 +1,9 @@
 const mongoose = require('mongoose');
 const dateHelper = require('../helpers/DateTimeHelper');
-// const moment = require('moment');
 
 const CovidReportSchema = require('../db/schema/DailyReportsSchema');
-const dbSettings = require('../configuration/AppSettings').DBSettings;
 const apiResponse = require('../models/ApiStatus');
+const modelConverter = require('../helpers/ModelConverter');
 
 let MESSAGE_PROPERTIES = {
     DB_ERROR : 'something is wrong in db',
@@ -14,7 +13,6 @@ let MESSAGE_PROPERTIES = {
 let Private = {
     findLatestReportForToday: (queryBlock) => {
         return new Promise((resolve, reject) => {
-
             queryBlock = queryBlock || {
                 createdAt : { $gte: dateHelper.getStartOfTodayAsDate(), $lte: dateHelper.getEndOfTodayAsDate()}
             };
@@ -25,7 +23,7 @@ let Private = {
                 .catch(err => reject(err));
         });
     },
-    findLatestIfUpdateable: () => {
+    findLatestIfUpdateAble: () => {
         return new Promise((resolve, reject) => {
             let queryBlock = {
                 createdAt : { $gte: dateHelper.getStartOfTodayAsDate(), $lte: dateHelper.getEndOfTodayAsDate()},
@@ -44,8 +42,8 @@ module.exports.getReportForTodayFromDB = () => {
         Private.findLatestReportForToday().then(result => {
             if(result){
                 if(dateHelper.isDBDataAlive(result.updatedAt)){
-                    console.log("fetching from db");
-                    apiResponse.SUCCESS.data = result._data;
+                    console.log("fetching reports from db");
+                    apiResponse.SUCCESS.data = modelConverter.convertFromMongoModelToCovidReportViewModel(result._data);
                     resolve(apiResponse.SUCCESS);
                 }else
                     reject(apiResponse.RECORD_NOT_FOUND);
@@ -72,7 +70,7 @@ module.exports.getReportByDateFromDB = (dateFrom, dateTo) => {
 
 module.exports.saveReportsInDB = (covidReportData) => {
     return new Promise((resolve, reject) => {
-        Private.findLatestIfUpdateable().then(result => {
+        Private.findLatestIfUpdateAble().then(result => {
             if(result){
                 let lastUpdatedAt = result.updatedAt;
                 result._data = covidReportData;
@@ -93,7 +91,6 @@ module.exports.saveReportsInDB = (covidReportData) => {
                         resolve(covidReportData);
                     }
                 })
-
             }
         }).catch(err => reject(err));
     });

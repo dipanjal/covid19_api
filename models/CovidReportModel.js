@@ -7,6 +7,6 @@ module.exports = {
     total_recovered:"",
     active_cases:"",
     critical_cases:"",
-    tot_cases_per_million:"",
-    tot_death_per_million:""
+    total_cases_per_million:"",
+    total_death_per_million:""
 };
