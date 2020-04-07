@@ -1,3 +1,4 @@
+
 const mongoose = require('mongoose');
 const dateHelper = require('../helpers/DateTimeHelper');
 
@@ -11,7 +12,11 @@ let MESSAGE_PROPERTIES = {
 };
 
 let Private = {
-    findLatestReportForToday: (queryBlock) => {
+    /**
+     * by default it returns for today
+     * @param queryBlock
+     */
+    findLatestReportByQuery: (queryBlock) => {
         return new Promise((resolve, reject) => {
             queryBlock = queryBlock || {
                 createdAt : { $gte: dateHelper.getStartOfTodayAsDate(), $lte: dateHelper.getEndOfTodayAsDate()}
@@ -19,31 +24,55 @@ let Private = {
 
             CovidReportSchema.findOne()
                 .where(queryBlock).sort({ createdAt: -1 })
-                .then(result => resolve(result))
-                .catch(err => reject(err));
+                .then(result => {
+                    resolve(result)
+                }).catch(err => reject(err));
         });
     },
-    findLatestIfUpdateAble: () => {
+    findLatestIfUpdateAble: (date) => {
         return new Promise((resolve, reject) => {
-            let queryBlock = {
-                createdAt : { $gte: dateHelper.getStartOfTodayAsDate(), $lte: dateHelper.getEndOfTodayAsDate()},
-                updatedAt : {$lte: dateHelper.getMaxTTLForDB()}
-            };
-            Private.findLatestReportForToday(queryBlock).then(result => {
-                resolve(result ? result : null);
-            }).catch(err => reject(err))
+            let queryBlock;
+            if(date){
+                queryBlock = {
+                    createdAt : { $gte: dateHelper.getStartOfDate(date), $lte: dateHelper.getEndOfDate(date)},
+                    updatedAt : {$lte: dateHelper.getMaxTTLForDB(date)}
+                };
+            }else{
+                queryBlock = {
+                    createdAt : { $gte: dateHelper.getStartOfTodayAsDate(), $lte: dateHelper.getEndOfTodayAsDate()},
+                    updatedAt : {$lte: dateHelper.getMaxTTLForDB()}
+                }
+            }
+            Private.findLatestReportByQuery(queryBlock)
+                .then(result => {resolve(result || null)})
+                .catch(err => reject(err))
         });
-    }
+    },
+
+    findLatestReport: (date) => {
+        return new Promise((resolve, reject) => {
+            let queryBlock = date ? {
+                    createdAt : { $gte: dateHelper.getStartOfDate(date), $lte: dateHelper.getEndOfDate(date)}
+                } : null;
+
+            Private.findLatestReportByQuery(queryBlock).then(result => resolve(result)).catch(err => reject(err));
+
+            /*CovidReportSchema.findOne()
+                .where(queryBlock).sort({ createdAt: -1 })
+                .then(result => resolve(result))
+                .catch(err => reject(err));*/
+        });
+    },
 };
 
 module.exports.getReportForTodayFromDB = () => {
     return new Promise((resolve, reject) => {
         console.log('fetching from db');
-        Private.findLatestReportForToday().then(result => {
+        Private.findLatestReportByQuery().then(result => {
             if(result){
                 if(dateHelper.isDBDataAlive(result.updatedAt)){
                     console.log("fetching reports from db");
-                    apiResponse.SUCCESS.data = modelConverter.convertFromMongoModelToCovidReportViewModel(result._data);
+                    apiResponse.SUCCESS.data = modelConverter.convertFromMongoModelToCovidReportViewModel(result);
                     resolve(apiResponse.SUCCESS);
                 }else
                     reject(apiResponse.RECORD_NOT_FOUND);
@@ -68,9 +97,9 @@ module.exports.getReportByDateFromDB = (dateFrom, dateTo) => {
     })
 };
 
-module.exports.saveReportsInDB = (covidReportData) => {
+module.exports.saveReportsInDB = (covidReportData, date) => {
     return new Promise((resolve, reject) => {
-        Private.findLatestIfUpdateAble().then(result => {
+        Private.findLatestIfUpdateAble(date).then(result => {
             if(result){
                 let lastUpdatedAt = result.updatedAt;
                 result._data = covidReportData;
@@ -80,14 +109,14 @@ module.exports.saveReportsInDB = (covidReportData) => {
                     console.log(`report updated at ${result.updatedAt}`);
                 }).catch(err => reject(err));
             }else{
-                Private.findLatestReportForToday().then(result=> {
+                Private.findLatestReport(date).then(result=> {
                     if(!result){
                         new CovidReportSchema({_data: covidReportData}).save().then(result =>{
                             resolve(covidReportData);
-                            console.log('new report inserted');
+                            console.log('new report inserted in DB');
                         }).catch(err => reject(err));
                     }else{
-                        console.log('nothing to be updated');
+                        console.log('nothing to be updated in DB');
                         resolve(covidReportData);
                     }
                 })
@@ -95,3 +124,41 @@ module.exports.saveReportsInDB = (covidReportData) => {
         }).catch(err => reject(err));
     });
 };
+
+module.exports.saveReportsInDBForYesterday = (data) => {
+    console.log("insert yesterday data in db");
+    return this.saveReportsInDB(data, dateHelper.getYesterdayAsDate());
+};
+
+Private.buildSearchQueryFromPayloads = (payloads) => {
+    let finalQuery = {
+        createdAt : {$gte: null, $lte: null}
+    };
+    if(payloads.hasOwnProperty('fromDate')){
+        finalQuery.createdAt.$gte = dateHelper.getStartOfDate(payloads.fromDate, dateHelper.formats.DD_MM_YYYY);
+    }if(payloads.hasOwnProperty('toDate')){
+        finalQuery.createdAt.$lte = dateHelper.getEndOfDate(payloads['toDate'], dateHelper.formats.DD_MM_YYYY);
+    }
+    return finalQuery;
+};
+
+Private.findReportInDBByQuery = (payloads) => {
+    return new Promise((resolve, reject) => {
+        let searchQuery = Private.buildSearchQueryFromPayloads(payloads);
+        CovidReportSchema.find()
+            .where(searchQuery).sort({ createdAt: 1 })
+            .then(resultFromDB => {
+                return modelConverter.fromMongoListToCovidViewModelList(resultFromDB);
+            }).then(viewAbleList => {
+                apiResponse.SUCCESS.data = viewAbleList;
+                resolve(apiResponse.SUCCESS);
+            }).catch(err =>{
+                apiResponse.INTERNAL_SERVER_ERROR.message = err.message || apiResponse.INTERNAL_SERVER_ERROR.message;
+                reject(apiResponse.INTERNAL_SERVER_ERROR);
+            });
+    });
+};
+
+module.exports.searchReportInDB = (payloads) => {
+    return Private.findReportInDBByQuery(payloads);
+}

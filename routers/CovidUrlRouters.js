@@ -10,6 +10,8 @@ router.get('/yesterday/summary',(req,res)=> covidApi.getSummaryForYesterday(res,
 router.get('/:country', (req, res) => covidApi.getByCountryNameForToday(req,res));
 router.get('/yesterday/:country', (req, res) => covidApi.getByCountryNameForYesterday(req,res));
 
+router.post('/search', covidApi.searchReports);
+
 
 
 module.exports = router;

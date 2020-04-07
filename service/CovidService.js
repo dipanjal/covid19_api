@@ -15,7 +15,7 @@ const Private = {
                 }).catch(errResponse => reject(errResponse))
         });
     }
-}
+};
 
 module.exports.getAllCountryReportsForToday = () => {
     return new Promise(((resolve, reject) => {
@@ -24,6 +24,7 @@ module.exports.getAllCountryReportsForToday = () => {
             .catch( cacheErrResponse => {
                 covidDBService.getReportForTodayFromDB().then(dbResponse => {
                     resolve(dbResponse);
+                    cacheService.save(dbResponse.data, cacheService.cacheKeys.ALL_COVID_DATA_TODAY);
                 }).catch(errResponse => {
                     Private.getFromScrapperAndUpdate().then(response => resolve(response)).catch(err => reject(err));
                 })
@@ -38,9 +39,10 @@ module.exports.getAllCountryReportsForYesterday = () => {
             .catch( cacheErrResponse => {
                 covidScrapper.getAllReportsForYesterdayFromScrapper()
                     .then(scrappedResponse => {
-                        return cacheService.save(scrappedResponse.data, cacheService.cacheKeys.ALL_COVID_DATA_YESTERDAY);
-                    }).then(successResponse => resolve(successResponse))
-                    .catch(errResponse => reject(errResponse));
+                        resolve(scrappedResponse);
+                        cacheService.save(scrappedResponse.data, cacheService.cacheKeys.ALL_COVID_DATA_YESTERDAY);
+                        covidDBService.saveReportsInDBForYesterday(scrappedResponse.data);
+                    }).catch(errResponse => reject(errResponse));
             });
     }));
 };
@@ -64,9 +66,10 @@ module.exports.getCovidSummaryForYesterday = () => {
         cacheService.getSummaryForYesterdayFromCache().then(resposne => {
             resolve(resposne);
         }).catch(errResp => {
-            covidScrapper.getSummaryForYesterdayFromScrapper().then(scrappedResponse => {
-                cacheService.save(scrappedResponse.data, cacheService.cacheKeys.COVID_SUMMARY_YESTERDAY);
-                resolve(scrappedResponse);
+            covidScrapper.getSummaryForYesterdayFromScrapper()
+                .then(scrappedResponse => {
+                    resolve(scrappedResponse);
+                    cacheService.save(scrappedResponse.data, cacheService.cacheKeys.COVID_SUMMARY_YESTERDAY);
             }).catch(errResp => resolve(errResp));
         });
     }))
@@ -100,4 +103,8 @@ module.exports.getReportByCountryForYesterday = (countryName) => {
                     .catch(errResp => reject(errResp));
             })
     }));
+};
+
+module.exports.searchReports = (payloads) => {
+    return covidDBService.searchReportInDB(payloads);
 };

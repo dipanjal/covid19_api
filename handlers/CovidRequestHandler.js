@@ -1,3 +1,5 @@
+
+
 let apiResponse = require('../models/ApiStatus');
 let covidHelper = require('../service/CovidScrapper');
 let covidService = require('../service/CovidService');
@@ -38,5 +40,11 @@ module.exports.getByCountryNameForToday = (req, res) => {
 module.exports.getByCountryNameForYesterday = (req, res) => {
     covidService.getReportByCountryForYesterday(req.params.country.toLowerCase())
         .then(dataResponse => apiResponse.createResponse2(dataResponse, res))
+        .catch(errResponse => apiResponse.createResponse2(errResponse, res));
+};
+
+module.exports.searchReports = (req, res) => {
+    covidService.searchReports(req.body)
+        .then(response => apiResponse.createResponse2(response, res))
         .catch(errResponse => apiResponse.createResponse2(errResponse, res));
 };

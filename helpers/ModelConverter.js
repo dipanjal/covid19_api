@@ -1,13 +1,18 @@
+const dateTimeHelper = require('../helpers/DateTimeHelper');
 const Private = {
     isSingleObject: (obj) => {
         return obj instanceof Object && !Array.isArray(Object);
     },
     isArray: (obj) => Array.isArray(obj),
-    isSingleObjectArray: (obj) => Array.isArray(obj) && obj.length > 0
+    isSingleObjectArray: (obj) => Array.isArray(obj) && obj.length === 1
 };
 
 module.exports.isEmpty = obj => {
     return obj ? Object.keys(obj).length === 0 : true;
+};
+
+module.exports.isEmptyArray = array => {
+    return array ? array.length === 0 : false;
 };
 
 /*module.exports.cacheModelsToDataModels = cacheModelList => {
@@ -49,4 +54,24 @@ module.exports.convertFromMongoModelToCovidReportViewModel = (dataFromMongo) => 
         return dataFromMongo;
     }
     return null;
+};
+
+module.exports.fromMongoListToCovidViewModelList = (mongoDataList) => {
+    return new Promise((resolve, reject) => {
+        if(Private.isArray(mongoDataList) && !this.isEmptyArray(mongoDataList)){
+            let viewableDataArray = [];
+            mongoDataList.forEach( (element, index) => {
+                let viewableData = {
+                    date: dateTimeHelper.getStringFromTimestamp(element.createdAt, dateTimeHelper.formats.DD_MM_YYYY),
+                    data: this.convertFromMongoModelToCovidReportViewModel(element._data)
+                };
+                viewableDataArray.push(viewableData);
+                if(index === mongoDataList.length - 1)
+                    resolve(viewableDataArray);
+            })
+        }else{
+            reject({message: "no record found"});
+        }
+    });
+
 };
