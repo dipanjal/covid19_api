@@ -1,6 +1,7 @@
 const morgan = require('morgan');
 const ipware = require('ipware')();
 const geoip = require('geoip-lite');
+const moment = require('moment');
 
 morgan.token('host', function(req, res) {
     return Private.getRealIp(req);
@@ -12,6 +13,10 @@ morgan.token('geo-loc', function(req, res) {
 
 morgan.token('param', function(req, res, param) {
     return req.params[param];
+});
+
+morgan.token('request_at_time', function(req, res, param) {
+    return moment().toDate();
 });
 
 let Private = {
@@ -35,10 +40,11 @@ let Private = {
 };
 
 module.exports.logFormat = JSON.stringify({
-    ip: ':host',
-    location: ':geo-loc',
     method: ':method',
     url: ':url',
     status: ':status',
-    response_time: ':response-time ms'
+    response_time: ':response-time ms',
+    ip: ':host',
+    location: ':geo-loc',
+    requested_at: ':request_at_time'
 }, null, 4);
