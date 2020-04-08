@@ -1,4 +1,4 @@
-// const mongoose = require('mongoose');
+const mongoose = require('mongoose');
 const dateHelper = require('../helpers/DateTimeHelper');
 
 const CovidReportSchema = require('../db/schema/DailyReportsSchema');

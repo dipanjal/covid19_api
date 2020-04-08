@@ -43,7 +43,10 @@ module.exports.isEmptyArray = array => {
         val: dataModels
     }
 };*/
-
+/**
+ *
+ * @param dataFromMongo -> always pass dataFromMongo._data
+ */
 module.exports.convertFromMongoModelToCovidReportViewModel = (dataFromMongo) => {
     if(this.isEmpty(dataFromMongo)) return null;
     else if(Private.isArray(dataFromMongo)){
