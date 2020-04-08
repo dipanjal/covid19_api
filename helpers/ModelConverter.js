@@ -4,7 +4,23 @@ const Private = {
         return obj instanceof Object && !Array.isArray(Object);
     },
     isArray: (obj) => Array.isArray(obj),
-    isSingleObjectArray: (obj) => Array.isArray(obj) && obj.length === 1
+    isSingleObjectArray: (obj) => Array.isArray(obj) && obj.length === 1,
+    mapMongoCovidReportListToViewableList: (mongoList) => {
+        return mongoList.map(mongoModel => {
+            return {
+                country_name: mongoModel.country_name,
+                total_cases: mongoModel.total_cases,
+                new_cases: mongoModel.new_cases,
+                total_death: mongoModel.total_death,
+                new_death: mongoModel.new_death,
+                total_recovered: mongoModel.total_recovered,
+                active_cases: mongoModel.active_cases,
+                critical_cases: mongoModel.critical_cases,
+                total_cases_per_million: mongoModel.total_cases_per_million,
+                total_death_per_million: mongoModel.total_death_per_million
+            };
+        });
+    }
 };
 
 module.exports.isEmpty = obj => {
@@ -31,20 +47,7 @@ module.exports.isEmptyArray = array => {
 module.exports.convertFromMongoModelToCovidReportViewModel = (dataFromMongo) => {
     if(this.isEmpty(dataFromMongo)) return null;
     else if(Private.isArray(dataFromMongo)){
-        return dataFromMongo.map(mongoModel => {
-            return {
-                country_name: mongoModel.country_name,
-                total_cases: mongoModel.total_cases,
-                new_cases: mongoModel.new_cases,
-                total_death: mongoModel.total_death,
-                new_death: mongoModel.new_death,
-                total_recovered: mongoModel.total_recovered,
-                active_cases: mongoModel.active_cases,
-                critical_cases: mongoModel.critical_cases,
-                total_cases_per_million: mongoModel.total_cases_per_million,
-                total_death_per_million: mongoModel.total_death_per_million
-            };
-        });
+        return Private.mapMongoCovidReportListToViewableList(dataFromMongo);
     }else if(Private.isSingleObjectArray(dataFromMongo)){
         delete dataFromMongo[0]._id;
         return dataFromMongo;

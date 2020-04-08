@@ -48,3 +48,9 @@ module.exports.searchReports = (req, res) => {
         .then(response => apiResponse.createResponse2(response, res))
         .catch(errResponse => apiResponse.createResponse2(errResponse, res));
 };
+
+module.exports.getCovidHistory = (req, res) => {
+    covidService.getCovidHistory()
+        .then(response => apiResponse.createResponse2(response, res))
+        .catch(errResponse => apiResponse.createResponse2(errResponse, res));
+};

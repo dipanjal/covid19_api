@@ -1,5 +1,4 @@
-
-const mongoose = require('mongoose');
+// const mongoose = require('mongoose');
 const dateHelper = require('../helpers/DateTimeHelper');
 
 const CovidReportSchema = require('../db/schema/DailyReportsSchema');
@@ -63,6 +62,50 @@ let Private = {
                 .catch(err => reject(err));*/
         });
     },
+    buildSearchQueryFromPayloads : (payloads) => {
+        let finalQuery = {
+            createdAt : {$gte: null, $lte: null}
+        };
+        if(payloads.hasOwnProperty('fromDate')){
+            finalQuery.createdAt.$gte = dateHelper.getStartOfDate(payloads.fromDate, dateHelper.formats.DD_MM_YYYY);
+        }if(payloads.hasOwnProperty('toDate')){
+            finalQuery.createdAt.$lte = dateHelper.getEndOfDate(payloads['toDate'], dateHelper.formats.DD_MM_YYYY);
+        }
+        return finalQuery;
+    },
+    findReportInDBByQuery : (payloads) => {
+        return new Promise((resolve, reject) => {
+            let searchQuery = Private.buildSearchQueryFromPayloads(payloads);
+            CovidReportSchema.find()
+                .where(searchQuery).sort({ createdAt: 1 })
+                .then(resultFromDB => {
+                    return modelConverter.fromMongoListToCovidViewModelList(resultFromDB);
+                }).then(viewAbleList => {
+                apiResponse.SUCCESS.data = viewAbleList;
+                resolve(apiResponse.SUCCESS);
+            }).catch(err =>{
+                apiResponse.INTERNAL_SERVER_ERROR.message = err.message || apiResponse.INTERNAL_SERVER_ERROR.message;
+                reject(apiResponse.INTERNAL_SERVER_ERROR);
+            });
+        });
+    },
+    getAllFromDB: () => {
+        return new Promise((resolve, reject) => {
+            CovidReportSchema.find().sort({createdAt: -1}).then(dataList => {
+                if(modelConverter.isEmptyArray(dataList)){
+                    resolve(apiResponse.RECORD_NOT_FOUND);
+                }else{
+                    return modelConverter.fromMongoListToCovidViewModelList(dataList);
+                }
+            }).then(listOfViewableData => {
+                apiResponse.SUCCESS.data = listOfViewableData;
+                resolve(apiResponse.SUCCESS);
+            }).catch( err => {
+                apiResponse.INTERNAL_SERVER_ERROR.message = err.message || apiResponse.INTERNAL_SERVER_ERROR.message;
+                reject(apiResponse.INTERNAL_SERVER_ERROR);
+            })
+        });
+    }
 };
 
 module.exports.getReportForTodayFromDB = () => {
@@ -72,7 +115,7 @@ module.exports.getReportForTodayFromDB = () => {
             if(result){
                 if(dateHelper.isDBDataAlive(result.updatedAt)){
                     console.log("fetching reports from db");
-                    apiResponse.SUCCESS.data = modelConverter.convertFromMongoModelToCovidReportViewModel(result);
+                    apiResponse.SUCCESS.data = modelConverter.convertFromMongoModelToCovidReportViewModel(result._data);
                     resolve(apiResponse.SUCCESS);
                 }else
                     reject(apiResponse.RECORD_NOT_FOUND);
@@ -130,35 +173,10 @@ module.exports.saveReportsInDBForYesterday = (data) => {
     return this.saveReportsInDB(data, dateHelper.getYesterdayAsDate());
 };
 
-Private.buildSearchQueryFromPayloads = (payloads) => {
-    let finalQuery = {
-        createdAt : {$gte: null, $lte: null}
-    };
-    if(payloads.hasOwnProperty('fromDate')){
-        finalQuery.createdAt.$gte = dateHelper.getStartOfDate(payloads.fromDate, dateHelper.formats.DD_MM_YYYY);
-    }if(payloads.hasOwnProperty('toDate')){
-        finalQuery.createdAt.$lte = dateHelper.getEndOfDate(payloads['toDate'], dateHelper.formats.DD_MM_YYYY);
-    }
-    return finalQuery;
-};
-
-Private.findReportInDBByQuery = (payloads) => {
-    return new Promise((resolve, reject) => {
-        let searchQuery = Private.buildSearchQueryFromPayloads(payloads);
-        CovidReportSchema.find()
-            .where(searchQuery).sort({ createdAt: 1 })
-            .then(resultFromDB => {
-                return modelConverter.fromMongoListToCovidViewModelList(resultFromDB);
-            }).then(viewAbleList => {
-                apiResponse.SUCCESS.data = viewAbleList;
-                resolve(apiResponse.SUCCESS);
-            }).catch(err =>{
-                apiResponse.INTERNAL_SERVER_ERROR.message = err.message || apiResponse.INTERNAL_SERVER_ERROR.message;
-                reject(apiResponse.INTERNAL_SERVER_ERROR);
-            });
-    });
-};
-
 module.exports.searchReportInDB = (payloads) => {
     return Private.findReportInDBByQuery(payloads);
+};
+
+module.exports.getCovidHistoryFromDB = () =>  {
+    return Private.getAllFromDB();
 }

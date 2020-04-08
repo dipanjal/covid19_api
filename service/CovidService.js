@@ -108,3 +108,7 @@ module.exports.getReportByCountryForYesterday = (countryName) => {
 module.exports.searchReports = (payloads) => {
     return covidDBService.searchReportInDB(payloads);
 };
+
+module.exports.getCovidHistory = () => {
+    return covidDBService.getCovidHistoryFromDB();
+};
