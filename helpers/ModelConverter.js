@@ -27,6 +27,10 @@ module.exports.isEmpty = obj => {
     return obj ? Object.keys(obj).length === 0 : true;
 };
 
+module.exports.isEmptyString = string => {
+    return !(string && string.length > 0);
+};
+
 module.exports.isEmptyArray = array => {
     return array ? array.length === 0 : false;
 };

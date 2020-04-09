@@ -29,7 +29,7 @@ let additionalInfo = {
         {url: "/yesterday", method: "GET", message: "get all report for yesterday"},
         {url: "/summary", method: "GET", message: "get total summary report for today"},
         {url: "/yesterday/summary", method: "GET", message: "get total summary report for yesterday"},
-        // {url: "/countries", method: "GET", message: "get all available country names"},
+        {url: "/countries", method: "GET", message: "get all available country names"},
         {url: "/{country}", method: "GET", message: "get today report for a country, ex: /uk"},
         {url: "/yesterday/{country}", method: "GET", message: "get yesterday report for a country, ex: /usa"},
         {url: "/history", method: "GET", message: "get historical data"},

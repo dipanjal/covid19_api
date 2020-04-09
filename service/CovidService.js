@@ -112,3 +112,19 @@ module.exports.searchReports = (payloads) => {
 module.exports.getCovidHistory = () => {
     return covidDBService.getCovidHistoryFromDB();
 };
+
+module.exports.getAvailableCountries = () => {
+    return new Promise((resolve, reject) => {
+        cacheService.getAvailableCountriesFromCache().then(response => resolve(response)).catch(errResposne => {
+            covidScrapper.getAvailableCountriesFromScrapper().then(response => {
+                resolve(response);
+                cacheService.save(response.data, cacheService.cacheKeys.AVAILABLE_COUNTRIES);
+            }).catch(errResponse => reject(errResponse));
+        });
+    });
+};
+
+module.exports.forceUpdateToday = () => {
+    console.log("force updating...");
+    return Private.getFromScrapperAndUpdate();
+}

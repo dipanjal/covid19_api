@@ -20,7 +20,8 @@ module.exports.cacheKeys = {
     ALL_COVID_DATA_TODAY: 'covid_data_all_today',
     ALL_COVID_DATA_YESTERDAY: 'covid_data_all_yesterday',
     COVID_SUMMARY_TODAY: 'covid_summary_today',
-    COVID_SUMMARY_YESTERDAY: 'covid_summary_yesterday'
+    COVID_SUMMARY_YESTERDAY: 'covid_summary_yesterday',
+    AVAILABLE_COUNTRIES: 'countries_available'
 };
 
 module.exports.save = (dataModels, key) => {
@@ -112,11 +113,26 @@ let getByCountryFromCache = (countryName, yesterdayFlag = false ) => {
     }))
 };
 
+
+
 module.exports.getReportByCountryForTodayFromCache = (countryName) => {
     return getByCountryFromCache(countryName);
 };
 
 module.exports.getReportByCountryForYesterdayFromCache = (countryName) => {
     return getByCountryFromCache(countryName, true);
+};
+
+module.exports.getAvailableCountriesFromCache = () => {
+    console.log("*** loading country list from cache ***");
+    return new Promise((resolve, reject) => {
+        let countries = covidCache.get(this.cacheKeys.AVAILABLE_COUNTRIES);
+        if(countries){
+            apiResponse.SUCCESS.data = countries;
+            resolve(apiResponse.SUCCESS);
+        }else{
+            reject(apiResponse.RECORD_NOT_FOUND);
+        }
+    });
 };
 

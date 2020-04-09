@@ -49,3 +49,15 @@ module.exports.getCovidHistory = (req, res) => {
         .then(response => apiResponse.createResponse(response, res))
         .catch(errResponse => apiResponse.createResponse(errResponse, res));
 };
+
+module.exports.getAvailableCountries = (req, res) => {
+    covidService.getAvailableCountries()
+        .then(response => apiResponse.createResponse(response, res))
+        .catch(errResponse => apiResponse.createResponse(errResponse, res));
+};
+
+module.exports.forceUpdateToday = (req, res) => {
+    covidService.forceUpdateToday()
+        .then(response => apiResponse.createResponse(response, res))
+        .catch(errResponse => apiResponse.createResponse(errResponse, res));
+};

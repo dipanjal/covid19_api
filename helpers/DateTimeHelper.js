@@ -5,6 +5,17 @@ module.exports.formats = {
     DD_MM_YYYY: 'DD-MM-YYYY'
 };
 
+module.exports.unitOfTime = {
+    YEAR: "year",
+    MONTH: "month",
+    WEEK: "week",
+    DAY: "day",
+    HOUR: "hour",
+    MINUTE: "minute",
+    SECOND: "second",
+    MILLI_SECOND: "millisecond"
+};
+
 module.exports.getStartOfTodayAsDate = () => {
     return moment().startOf('day').toDate();
 };

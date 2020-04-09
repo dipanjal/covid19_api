@@ -105,6 +105,27 @@ let Privates = {
     },
 
     Country:{
+        scrapAvailableCountries: (requestUrl) => {
+            return new Promise((resolve, reject) => {
+                Privates.Report.scrapTableFromRequestUrl(requestUrl, false)
+                    .then(response => {
+                        if(!modelConverter.isEmptyArray(response.data)){
+                            let countries = response.data.reduce( (result, singleObject) => {
+                                if(!modelConverter.isEmptyString(singleObject.country_name))
+                                    result.push(singleObject.country_name);
+                                return result;
+                            }, []).sort();
+                            apiStatus.SUCCESS.data = countries;
+                            resolve(apiStatus.SUCCESS);
+                        }else {
+                            response(apiStatus.RECORD_NOT_FOUND);
+                        }
+                    }).catch(err => {
+                        apiStatus.REMOTE_ERROR.message = err.message || apiStatus.REMOTE_ERROR.message;
+                        reject(apiStatus.REMOTE_ERROR);
+                    });
+            })
+        },
         parseTableForSpecificCountry: (requestUrl,countryName, yesterdayFlag) => {
             return new Promise((resolve, reject) => {
                 Privates.Report.scrapTableFromRequestUrl(requestUrl, yesterdayFlag).then(response => {
@@ -153,4 +174,8 @@ module.exports.getReportByCountryFroTodayFromScrapper = (countryName) => {
 };
 module.exports.getReportByCountryForYesterdayFromScrapper = (countryName) => {
     return Privates.Country.scrapCountrySpecificDataForYesterday(requestUrl, countryName);
+};
+
+module.exports.getAvailableCountriesFromScrapper = () => {
+    return Privates.Country.scrapAvailableCountries(requestUrl);
 };

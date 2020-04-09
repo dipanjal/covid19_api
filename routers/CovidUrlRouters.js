@@ -7,7 +7,11 @@ router.get('/yesterday',(req,res)=> covidApi.getAllForYesterday(res, res) );
 router.get('/summary',(req,res)=> covidApi.getSummaryForToday(res, res));
 router.get('/yesterday/summary',(req,res)=> covidApi.getSummaryForYesterday(res, res));
 
+router.get('/countries', covidApi.getAvailableCountries);
 router.get('/history', covidApi.getCovidHistory);
+
+router.get('/forceUpdate', covidApi.forceUpdateToday);
+
 router.post('/search', covidApi.searchReports);
 
 /**
