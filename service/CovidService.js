@@ -82,9 +82,9 @@ module.exports.getReportByCountryForToday = (countryName) => {
             .catch(errResponse => {
                 covidScrapper.getReportByCountryFroTodayFromScrapper(countryName)
                     .then(dataResponse => {
-                        return cacheService.save(dataResponse.data, dataResponse.data.country_name);
-                    }).then(successResp => resolve(successResp))
-                    .catch(errResp => reject(errResp));
+                        resolve(dataResponse);
+                        cacheService.save(dataResponse.data, dataResponse.data.country_name);
+                    }).catch(errResp => reject(errResp));
             })
     }));
 };
@@ -97,10 +97,10 @@ module.exports.getReportByCountryForYesterday = (countryName) => {
             .catch(errResponse => {
                 covidScrapper.getReportByCountryForYesterdayFromScrapper(countryName)
                     .then(dataResponse => {
+                        resolve(dataResponse);
                         let key = dataResponse.data.country_name+suffix;
                         return cacheService.save(dataResponse.data, key);
-                    }).then(successResp => resolve(successResp))
-                    .catch(errResp => reject(errResp));
+                    }).catch(errResp => reject(errResp));
             })
     }));
 };

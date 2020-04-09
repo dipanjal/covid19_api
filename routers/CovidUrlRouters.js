@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const covidApi = require('../handlers/CovidRequestHandler');
+const countryMiddleware = require('../middlewares/SearchByCountryMiddleware');
 
 router.get('/',(req,res)=> covidApi.getAllForToday(res, res) );
 router.get('/yesterday',(req,res)=> covidApi.getAllForYesterday(res, res) );
@@ -19,11 +20,7 @@ router.post('/search', covidApi.searchReports);
  * otherwise it will map other router urls with the path variable
  * ex: /history
  */
-router.get('/:country', (req, res) => covidApi.getByCountryNameForToday(req,res));
-router.get('/yesterday/:country', (req, res) => covidApi.getByCountryNameForYesterday(req,res));
-
-
-
-
+router.get('/:country', countryMiddleware.isCountryAvailable, covidApi.getByCountryNameForToday);
+router.get('/yesterday/:country', countryMiddleware.isCountryAvailable ,covidApi.getByCountryNameForYesterday);
 
 module.exports = router;
