@@ -39,13 +39,18 @@ let CoreModule = {
                 $(tbody).find('tr').each((index,tr)=>{
                     let data = {};
                     $(tr).find('td').each((i,td)=>{
+                        let value = CoreModule.sanitizeValues($(td).text()).toLowerCase();
+                        if(i === 0 && modelConverter.isEmptyString(value))
+                            return false;
+
                         if(i < modelKeys.length){
                             let key = modelKeys[i];
-                            let value = CoreModule.sanitizeValues($(td).text()).toLowerCase();
                             if(key) data[key] = value ? value : '';
                         }
                     });
-                    covidReports.push(data);
+
+                    if(!modelConverter.isEmptyObject(data))
+                        covidReports.push(data);
                 });
                 apiStatus.SUCCESS.data = covidReports;
                 resolve(apiStatus.SUCCESS);
@@ -130,7 +135,7 @@ let Privates = {
             return new Promise((resolve, reject) => {
                 Privates.Report.scrapTableFromRequestUrl(requestUrl, yesterdayFlag).then(response => {
                     let data = _.find(response.data, {country_name: countryName.toLocaleLowerCase()});
-                    if(!modelConverter.isEmpty(data)){
+                    if(!modelConverter.isEmptyObject(data)){
                         apiStatus.SUCCESS.data = data;
                         resolve(apiStatus.SUCCESS);
                     }else reject(apiStatus.RECORD_NOT_FOUND);

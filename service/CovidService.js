@@ -12,7 +12,7 @@ const Private = {
                     resolve(scrappedResponse);
                     cacheService.save(scrappedResponse.data, cacheService.cacheKeys.ALL_COVID_DATA_TODAY);
                     covidDBService.saveReportsInDB(scrappedResponse.data);
-                }).catch(errResponse => reject(errResponse))
+                }).catch(errResponse => reject(errResponse));
         });
     }
 };
@@ -127,4 +127,4 @@ module.exports.getAvailableCountries = () => {
 module.exports.forceUpdateToday = () => {
     console.log("force updating...");
     return Private.getFromScrapperAndUpdate();
-}
+};

@@ -23,7 +23,7 @@ const Private = {
     }
 };
 
-module.exports.isEmpty = obj => {
+module.exports.isEmptyObject = obj => {
     return obj ? Object.keys(obj).length === 0 : true;
 };
 
@@ -35,24 +35,12 @@ module.exports.isEmptyArray = array => {
     return array ? array.length === 0 : false;
 };
 
-/*module.exports.cacheModelsToDataModels = cacheModelList => {
-    return this.isEmpty(cacheModelList) ? null : cacheModelList.map(cacheModel => {
-        return cacheModel.val;
-    });
-};*/
-
-/*module.exports.DataModelsToCacheModels = (key, dataModels) => {
-    return this.isEmpty(dataModels) ? null : {
-        key: key,
-        val: dataModels
-    }
-};*/
 /**
  *
  * @param dataFromMongo -> always pass dataFromMongo._data
  */
 module.exports.convertFromMongoModelToCovidReportViewModel = (dataFromMongo) => {
-    if(this.isEmpty(dataFromMongo)) return null;
+    if(this.isEmptyObject(dataFromMongo)) return null;
     else if(Private.isArray(dataFromMongo)){
         return Private.mapMongoCovidReportListToViewableList(dataFromMongo);
     }else if(Private.isSingleObjectArray(dataFromMongo)){

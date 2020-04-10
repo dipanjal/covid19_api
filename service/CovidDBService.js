@@ -142,7 +142,29 @@ module.exports.getReportByDateFromDB = (dateFrom, dateTo) => {
 
 module.exports.saveReportsInDB = (covidReportData, date) => {
     return new Promise((resolve, reject) => {
-        Private.findLatestIfUpdateAble(date).then(result => {
+        Private.findLatestReport(date).then(result => {
+            apiResponse.SUCCESS.data = covidReportData;
+            apiResponse.INTERNAL_SERVER_ERROR.message = MESSAGE_PROPERTIES.DB_ERROR;
+            if(!result){
+                new CovidReportSchema({_data: covidReportData}).save().then(result =>{
+                    resolve(apiResponse.SUCCESS);
+                    console.log('new report inserted in DB');
+                }).catch(err => reject(apiResponse.INTERNAL_SERVER_ERROR));
+            }else if(!dateHelper.isDBDataAlive(result.updatedAt)){
+                result._data = covidReportData;
+                console.log("updating db....");
+                result.save().then(resultUpdated => {
+                    resolve(apiResponse.SUCCESS);
+                    console.log(`report was last updated at ${result.updatedAt}`);
+                    console.log(`report updated at ${resultUpdated.updatedAt}`);
+                }).catch(err => reject(apiResponse.INTERNAL_SERVER_ERROR));
+            }else{
+                resolve(apiResponse.SUCCESS);
+                console.log("nothing to be updated in DB");
+            }
+        }).catch(err => reject(apiResponse.INTERNAL_SERVER_ERROR));
+
+        /*Private.findLatestIfUpdateAble(date).then(result => {
             if(result){
                 let lastUpdatedAt = result.updatedAt;
                 result._data = covidReportData;
@@ -164,7 +186,7 @@ module.exports.saveReportsInDB = (covidReportData, date) => {
                     }
                 })
             }
-        }).catch(err => reject(err));
+        }).catch(err => reject(err));*/
     });
 };
 

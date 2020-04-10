@@ -27,7 +27,7 @@ module.exports.cacheKeys = {
 module.exports.save = (dataModels, key) => {
     return new Promise(((resolve, reject) => {
         console.log("*** updating cache ***");
-        if(!modelConverter.isEmpty(dataModels)){
+        if(!modelConverter.isEmptyObject(dataModels)){
             let status = covidCache.set(key , dataModels);
             if(status){
                 apiResponse.SUCCESS.data = dataModels;
@@ -47,7 +47,7 @@ module.exports.save = (dataModels, key) => {
 let getAllReportFromCache = (key) => {
     return new Promise(((resolve, reject) => {
         let dataModels = covidCache.get(key);
-        if(!modelConverter.isEmpty(dataModels)){
+        if(!modelConverter.isEmptyObject(dataModels)){
             console.log('*** loading reports from cache ***');
             apiResponse.SUCCESS.data = dataModels;
             resolve(apiResponse.SUCCESS);
@@ -68,7 +68,7 @@ let getSummaryFromCache = (key) => {
     return new Promise(((resolve, reject) => {
         console.log('*** loading summary from cache ***');
         let dataModels = covidCache.get(key);
-        if(!modelConverter.isEmpty(dataModels)){
+        if(!modelConverter.isEmptyObject(dataModels)){
             apiResponse.SUCCESS.data = dataModels;
             resolve(apiResponse.SUCCESS);
         }else{
@@ -90,7 +90,7 @@ let getByCountryFromCache = (countryName, yesterdayFlag = false ) => {
         let keyToSearch = countryName.toLowerCase()+keySuffix;
         let data = covidCache.get(keyToSearch); //fetching from country cache
 
-        if(modelConverter.isEmpty(data)){
+        if(modelConverter.isEmptyObject(data)){
             console.log("*** loading country from cache ***");
             let dynamicFunctionCaller = yesterdayFlag ?
                 this.getAllReportForYesterdayFromCache : this.getAllReportForTodayFromCache;
