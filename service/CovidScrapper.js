@@ -91,7 +91,7 @@ let Privates = {
                     .then(dom => {return CoreModule.scrapTableFromDom(dom,1, yesterdayFlag)})
                     .then(covidReportsSuccessResponse => {
                         let obj = covidReportsSuccessResponse.data[0];
-                        obj.country_name = '';
+                        obj.country_name = 'world';
                         covidReportsSuccessResponse.data = obj;
                         resolve(covidReportsSuccessResponse);
                     })
