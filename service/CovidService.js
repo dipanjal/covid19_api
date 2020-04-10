@@ -70,7 +70,7 @@ module.exports.getCovidSummaryForYesterday = () => {
                 .then(scrappedResponse => {
                     resolve(scrappedResponse);
                     cacheService.save(scrappedResponse.data, cacheService.cacheKeys.COVID_SUMMARY_YESTERDAY);
-            }).catch(errResp => resolve(errResp));
+            }).catch(errResp => reject(errResp));
         });
     }))
 };
