@@ -124,10 +124,10 @@ module.exports.getReportByCountryForYesterdayFromCache = (countryName) => {
 };
 
 module.exports.getAvailableCountriesFromCache = () => {
-    console.log("*** loading country list from cache ***");
     return new Promise((resolve, reject) => {
         let countries = covidCache.get(this.cacheKeys.AVAILABLE_COUNTRIES);
         if(countries){
+            console.log("*** loading country list from cache ***");
             apiResponse.SUCCESS.data = countries;
             resolve(apiResponse.SUCCESS);
         }else{

@@ -16,8 +16,9 @@ let CoreModule = {
     },
     loadPage: (requestUrl) => {
         return new Promise((resolve, reject) => {
-            console.log("*** scrapping from web ***");
+            console.log("*** scrapping from web start ***");
             axios.get(requestUrl).then(response => {
+                console.log("*** scrapping from web done ***");
                 resolve(response.data);
             }).catch(err => {
                 apiStatus.REMOTE_ERROR.message = err.message || apiStatus.REMOTE_ERROR.message;

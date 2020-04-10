@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
-const dateHelper = require('../helpers/DateTimeHelper');
+const _ = require('lodash');
 
+const dateHelper = require('../helpers/DateTimeHelper');
 const CovidReportSchema = require('../db/schema/DailyReportsSchema');
 const apiResponse = require('../models/ApiStatus');
 const modelConverter = require('../helpers/ModelConverter');
@@ -79,7 +80,7 @@ let Private = {
             CovidReportSchema.find()
                 .where(searchQuery).sort({ createdAt: 1 })
                 .then(resultFromDB => {
-                    return modelConverter.fromMongoListToCovidViewModelList(resultFromDB);
+                    return modelConverter.fromMongoCollectionToCovidViewModelList(resultFromDB);
                 }).then(viewAbleList => {
                 apiResponse.SUCCESS.data = viewAbleList;
                 resolve(apiResponse.SUCCESS);
@@ -95,7 +96,7 @@ let Private = {
                 if(modelConverter.isEmptyArray(dataList)){
                     resolve(apiResponse.RECORD_NOT_FOUND);
                 }else{
-                    return modelConverter.fromMongoListToCovidViewModelList(dataList);
+                    return modelConverter.fromMongoCollectionToCovidViewModelList(dataList);
                 }
             }).then(listOfViewableData => {
                 apiResponse.SUCCESS.data = listOfViewableData;
@@ -110,11 +111,10 @@ let Private = {
 
 module.exports.getReportForTodayFromDB = () => {
     return new Promise((resolve, reject) => {
-        console.log('fetching from db');
         Private.findLatestReportByQuery().then(result => {
             if(result){
                 if(dateHelper.isDBDataAlive(result.updatedAt)){
-                    console.log("fetching reports from db");
+                    console.log("fetched reports from DB");
                     apiResponse.SUCCESS.data = modelConverter.convertFromMongoModelToCovidReportViewModel(result._data);
                     resolve(apiResponse.SUCCESS);
                 }else
@@ -147,46 +147,22 @@ module.exports.saveReportsInDB = (covidReportData, date) => {
             apiResponse.INTERNAL_SERVER_ERROR.message = MESSAGE_PROPERTIES.DB_ERROR;
             if(!result){
                 new CovidReportSchema({_data: covidReportData}).save().then(result =>{
-                    resolve(apiResponse.SUCCESS);
                     console.log('new report inserted in DB');
+                    resolve(apiResponse.SUCCESS);
                 }).catch(err => reject(apiResponse.INTERNAL_SERVER_ERROR));
             }else if(!dateHelper.isDBDataAlive(result.updatedAt)){
                 result._data = covidReportData;
-                console.log("updating db....");
+                console.log("updating DB....");
                 result.save().then(resultUpdated => {
                     resolve(apiResponse.SUCCESS);
-                    console.log(`report was last updated at ${result.updatedAt}`);
-                    console.log(`report updated at ${resultUpdated.updatedAt}`);
+                    console.log(`report DB was last updated at ${result.updatedAt}`);
+                    console.log(`report DB updated at ${resultUpdated.updatedAt}`);
                 }).catch(err => reject(apiResponse.INTERNAL_SERVER_ERROR));
             }else{
                 resolve(apiResponse.SUCCESS);
                 console.log("nothing to be updated in DB");
             }
         }).catch(err => reject(apiResponse.INTERNAL_SERVER_ERROR));
-
-        /*Private.findLatestIfUpdateAble(date).then(result => {
-            if(result){
-                let lastUpdatedAt = result.updatedAt;
-                result._data = covidReportData;
-                result.save().then(result =>{
-                    resolve(covidReportData);
-                    console.log(`report was last updated at ${lastUpdatedAt}`);
-                    console.log(`report updated at ${result.updatedAt}`);
-                }).catch(err => reject(err));
-            }else{
-                Private.findLatestReport(date).then(result=> {
-                    if(!result){
-                        new CovidReportSchema({_data: covidReportData}).save().then(result =>{
-                            resolve(covidReportData);
-                            console.log('new report inserted in DB');
-                        }).catch(err => reject(err));
-                    }else{
-                        console.log('nothing to be updated in DB');
-                        resolve(covidReportData);
-                    }
-                })
-            }
-        }).catch(err => reject(err));*/
     });
 };
 
@@ -201,4 +177,27 @@ module.exports.searchReportInDB = (payloads) => {
 
 module.exports.getCovidHistoryFromDB = () =>  {
     return Private.getAllFromDB();
-}
+};
+
+module.exports.getReportByCountryForTodayFromDB = (countryName) => {
+    return new Promise((resolve, reject) => {
+        let queryBlock = {
+            createdAt : { $gte: dateHelper.getStartOfTodayAsDate(), $lte: dateHelper.getEndOfTodayAsDate()}
+        };
+        CovidReportSchema.findOne()
+            .where(queryBlock).sort({ createdAt: -1 })
+            .then(result => {
+                let data = result._data.filter(x=> x.country_name === countryName);
+                if(_.isEmpty(data)){
+                    reject(apiResponse.RECORD_NOT_FOUND);
+                }else{
+                    apiResponse.SUCCESS.data = modelConverter.convertFromMongoModelToCovidReportViewModel(data);
+                    resolve(apiResponse.SUCCESS);
+                }
+            }).catch(err => {
+                reject(apiResponse.INTERNAL_SERVER_ERROR);
+            });
+    });
+
+
+};

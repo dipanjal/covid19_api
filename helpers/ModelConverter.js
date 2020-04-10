@@ -35,12 +35,14 @@ module.exports.isEmptyArray = array => {
     return array ? array.length === 0 : false;
 };
 
+
 /**
  *
  * @param dataFromMongo -> always pass dataFromMongo._data
  */
 module.exports.convertFromMongoModelToCovidReportViewModel = (dataFromMongo) => {
-    if(this.isEmptyObject(dataFromMongo)) return null;
+    if(this.isEmptyObject(dataFromMongo))
+        return null;
     else if(Private.isArray(dataFromMongo)){
         return Private.mapMongoCovidReportListToViewableList(dataFromMongo);
     }else if(Private.isSingleObjectArray(dataFromMongo)){
@@ -54,7 +56,7 @@ module.exports.convertFromMongoModelToCovidReportViewModel = (dataFromMongo) => 
     return null;
 };
 
-module.exports.fromMongoListToCovidViewModelList = (mongoDataList) => {
+module.exports.fromMongoCollectionToCovidViewModelList = (mongoDataList) => {
     return new Promise((resolve, reject) => {
         if(Private.isArray(mongoDataList) && !this.isEmptyArray(mongoDataList)){
             let viewableDataArray = [];

@@ -80,11 +80,15 @@ module.exports.getReportByCountryForToday = (countryName) => {
         cacheService.getReportByCountryForTodayFromCache(countryName)
             .then(dataResposne => resolve(dataResposne))
             .catch(errResponse => {
-                covidScrapper.getReportByCountryFroTodayFromScrapper(countryName)
-                    .then(dataResponse => {
-                        resolve(dataResponse);
-                        cacheService.save(dataResponse.data, dataResponse.data.country_name);
-                    }).catch(errResp => reject(errResp));
+                covidDBService.getReportByCountryForTodayFromDB(countryName)
+                    .then(resonse => resolve(resonse))
+                    .catch(errResponse => {
+                        covidScrapper.getReportByCountryFroTodayFromScrapper(countryName)
+                            .then(dataResponse => {
+                                resolve(dataResponse);
+                                cacheService.save(dataResponse.data, dataResponse.data.country_name);
+                            }).catch(errResp => reject(errResp));
+                    });
             })
     }));
 };
