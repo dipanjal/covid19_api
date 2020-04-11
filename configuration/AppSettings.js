@@ -1,4 +1,4 @@
-let hour = 1;
+let hour = 0.5;
 let ttl = 60 * 60 * hour;
 module.exports.CacheSettings = {
     stdTTL: ttl,
@@ -7,7 +7,7 @@ module.exports.CacheSettings = {
 };
 
 module.exports.DBSettings = {
-    maxTTL: 2,
+    maxTTL: 1,
     unitOfTime: 'hour'
 };
 

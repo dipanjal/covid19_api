@@ -86,30 +86,24 @@ module.exports.getSummaryForYesterdayFromCache = () => {
 
 let getByCountryFromCache = (countryName, yesterdayFlag = false ) => {
     return new Promise(((resolve, reject) => {
-        let keySuffix = yesterdayFlag ? '_yesterday':'';
-        let keyToSearch = countryName.toLowerCase()+keySuffix;
-        let data = covidCache.get(keyToSearch); //fetching from country cache
+        // let keySuffix = yesterdayFlag ? '_yesterday':'';
+        // let keyToSearch = countryName.toLowerCase()+keySuffix;
+        // let data = covidCache.get(keyToSearch); //fetching from country cache
 
-        if(modelConverter.isEmptyObject(data)){
-            console.log("*** loading country from cache ***");
-            let dynamicFunctionCaller = yesterdayFlag ?
-                this.getAllReportForYesterdayFromCache : this.getAllReportForTodayFromCache;
+        console.log("*** loading country from cache ***");
+        let dynamicFunctionCaller = yesterdayFlag ?
+            this.getAllReportForYesterdayFromCache : this.getAllReportForTodayFromCache;
 
-            dynamicFunctionCaller().then(allDataSuccessResponse => {
-                let dataSingle = _.find(allDataSuccessResponse.data, {country_name: keyToSearch});
-                if(dataSingle){
-                    this.save(dataSingle, keyToSearch); //country wise caching
-                    apiResponse.SUCCESS.data = dataSingle;
-                    resolve(apiResponse.SUCCESS);
-                }else{
-                    reject(apiResponse.RECORD_NOT_FOUND);
-                }
-            }).catch(err => reject(err))
-        }else{
-            console.log("*** loading country from cache ***");
-            apiResponse.SUCCESS.data = data;
-            resolve(apiResponse.SUCCESS);
-        }
+        dynamicFunctionCaller().then(allDataSuccessResponse => {
+            let dataSingle = _.find(allDataSuccessResponse.data, {country_name: keyToSearch});
+            if(dataSingle){
+                // this.save(dataSingle, keyToSearch); //country wise caching
+                apiResponse.SUCCESS.data = dataSingle;
+                resolve(apiResponse.SUCCESS);
+            }else{
+                reject(apiResponse.RECORD_NOT_FOUND);
+            }
+        }).catch(err => reject(apiResponse.INTERNAL_SERVER_ERROR))
     }))
 };
 

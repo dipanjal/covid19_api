@@ -130,5 +130,14 @@ module.exports.getAvailableCountries = () => {
 
 module.exports.forceUpdateToday = () => {
     console.log("force updating...");
-    return Private.getFromScrapperAndUpdate();
+    return new Promise((resolve, reject) => {
+        covidScrapper.getAllReportsForTodayFromScrapper()
+            .then(response => {
+                resolve(response);
+                cacheService.save(response.data, cacheService.cacheKeys.ALL_COVID_DATA_TODAY);
+                covidDBService.forceUpdateDB(response.data);
+            }).catch(errResponse => reject(errResponse));
+    });
+
+
 };

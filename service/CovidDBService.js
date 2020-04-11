@@ -29,26 +29,6 @@ let Private = {
                 }).catch(err => reject(err));
         });
     },
-    findLatestIfUpdateAble: (date) => {
-        return new Promise((resolve, reject) => {
-            let queryBlock;
-            if(date){
-                queryBlock = {
-                    createdAt : { $gte: dateHelper.getStartOfDate(date), $lte: dateHelper.getEndOfDate(date)},
-                    updatedAt : {$lte: dateHelper.getMaxTTLForDB(date)}
-                };
-            }else{
-                queryBlock = {
-                    createdAt : { $gte: dateHelper.getStartOfTodayAsDate(), $lte: dateHelper.getEndOfTodayAsDate()},
-                    updatedAt : {$lte: dateHelper.getMaxTTLForDB()}
-                }
-            }
-            Private.findLatestReportByQuery(queryBlock)
-                .then(result => {resolve(result || null)})
-                .catch(err => reject(err))
-        });
-    },
-
     findLatestReport: (date) => {
         return new Promise((resolve, reject) => {
             let queryBlock = date ? {
@@ -56,11 +36,6 @@ let Private = {
                 } : null;
 
             Private.findLatestReportByQuery(queryBlock).then(result => resolve(result)).catch(err => reject(err));
-
-            /*CovidReportSchema.findOne()
-                .where(queryBlock).sort({ createdAt: -1 })
-                .then(result => resolve(result))
-                .catch(err => reject(err));*/
         });
     },
     buildSearchQueryFromPayloads : (payloads) => {
@@ -111,7 +86,7 @@ let Private = {
 
 module.exports.getReportForTodayFromDB = () => {
     return new Promise((resolve, reject) => {
-        Private.findLatestReportByQuery().then(result => {
+        Private.findLatestReport().then(result => {
             if(result){
                 if(dateHelper.isDBDataAlive(result.updatedAt)){
                     console.log("fetched reports from DB");
@@ -181,23 +156,36 @@ module.exports.getCovidHistoryFromDB = () =>  {
 
 module.exports.getReportByCountryForTodayFromDB = (countryName) => {
     return new Promise((resolve, reject) => {
-        let queryBlock = {
-            createdAt : { $gte: dateHelper.getStartOfTodayAsDate(), $lte: dateHelper.getEndOfTodayAsDate()}
-        };
-        CovidReportSchema.findOne()
-            .where(queryBlock).sort({ createdAt: -1 })
-            .then(result => {
-                let data = result._data.filter(x=> x.country_name === countryName);
-                if(_.isEmpty(data)){
-                    reject(apiResponse.RECORD_NOT_FOUND);
-                }else{
-                    apiResponse.SUCCESS.data = modelConverter.convertFromMongoModelToCovidReportViewModel(data);
-                    resolve(apiResponse.SUCCESS);
-                }
-            }).catch(err => {
-                reject(apiResponse.INTERNAL_SERVER_ERROR);
-            });
+        Private.findLatestReport().then(resultFromDb => {
+            let data = resultFromDb._data.filter(x=> x.country_name === countryName);
+            if(_.isEmpty(data)){
+                reject(apiResponse.RECORD_NOT_FOUND);
+            }else{
+                apiResponse.SUCCESS.data = modelConverter.convertFromMongoModelToCovidReportViewModel(data);
+                resolve(apiResponse.SUCCESS);
+            }
+        }).catch(err => reject(apiResponse.INTERNAL_SERVER_ERROR))
     });
+};
 
-
+module.exports.forceUpdateDB = (data, dateString) => {
+    return new Promise((resolve, reject) => {
+        Private.findLatestReport(dateString).then(result => {
+            if(!result){
+                console.log("force: inserting new record in DB");
+                return new CovidReportSchema({_data: data}).save();
+            }else{
+                console.log("force: updating in DB");
+                console.log(`force: report DB was last updated at ${result.updatedAt}`);
+                result._data = data;
+                return result.save();
+            }
+        }).then(resultFromDB => {
+            if(!_.isEmpty(resultFromDB)){
+                apiResponse.SUCCESS.data = modelConverter.convertFromMongoModelToCovidReportViewModel(resultFromDB._data);
+                resolve(apiResponse.SUCCESS.data);
+                console.log(`report DB updated at ${resultFromDB.updatedAt}`);
+            }
+        }).catch(err => reject(apiResponse.INTERNAL_SERVER_ERROR));
+    });
 };
