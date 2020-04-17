@@ -235,3 +235,16 @@ module.exports.setHits = (url) => {
         })
     });
 };
+
+module.exports.getTotalHits = () => {
+    return new Promise((resolve, reject) => {
+        TotalHitsSchema.findOne().then(data => {
+            data._apis = _.sortBy(data._apis, 'hits').reverse();
+            apiResponse.SUCCESS.data = data;
+            resolve(apiResponse.SUCCESS);
+        }).catch(err => {
+            apiResponse.INTERNAL_SERVER_ERROR.message = err.message || MESSAGE_PROPERTIES.DB_ERROR;
+            reject(apiResponse.INTERNAL_SERVER_ERROR);
+        })
+    })
+};

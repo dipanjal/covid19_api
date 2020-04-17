@@ -61,3 +61,9 @@ module.exports.forceUpdateToday = (req, res) => {
         .then(response => apiResponse.createResponse(response, res))
         .catch(errResponse => apiResponse.createResponse(errResponse, res));
 };
+
+module.exports.getTotalHits = (req, res) => {
+    covidService.getTotalHits()
+        .then(response => apiResponse.createResponse(response, res))
+        .catch(errResponse => apiResponse.createResponse(errResponse, res));
+};

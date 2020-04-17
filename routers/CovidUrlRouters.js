@@ -13,7 +13,7 @@ router.get('/history', covidApi.getCovidHistory);
 
 router.get('/forceUpdate', covidApi.forceUpdateToday);
 
-router.get('/test', (req, res) => {res.json({message:'success'})});
+router.get('/hits', covidApi.getTotalHits);
 
 router.post('/search', covidApi.searchReports);
 

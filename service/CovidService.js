@@ -143,3 +143,6 @@ module.exports.forceUpdateToday = () => {
 module.exports.saveHits = (url) => {
     return covidDBService.setHits(url);
 };
+module.exports.getTotalHits = () => {
+    return covidDBService.getTotalHits();
+};
