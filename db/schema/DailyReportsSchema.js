@@ -3,7 +3,6 @@ const collectionName = require('../../configuration/DBConfig').Collections.COLL_
 const Schema = mongoose.Schema;
 
 let covidDailyReportSchema = new Schema({
-    // _id: Schema.ObjectId,
     _data: [{
         country_name: String,
         total_cases: String,

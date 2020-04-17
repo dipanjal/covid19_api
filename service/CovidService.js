@@ -138,6 +138,8 @@ module.exports.forceUpdateToday = () => {
                 covidDBService.forceUpdateDB(response.data);
             }).catch(errResponse => reject(errResponse));
     });
+};
 
-
+module.exports.saveHits = (url) => {
+    return covidDBService.setHits(url);
 };

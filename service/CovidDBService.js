@@ -3,6 +3,7 @@ const _ = require('lodash');
 
 const dateHelper = require('../helpers/DateTimeHelper');
 const CovidReportSchema = require('../db/schema/DailyReportsSchema');
+const TotalHitsSchema = require('../db/schema/TotalHits');
 const apiResponse = require('../models/ApiStatus');
 const modelConverter = require('../helpers/ModelConverter');
 
@@ -187,5 +188,50 @@ module.exports.forceUpdateDB = (data, dateString) => {
                 console.log(`report DB updated at ${resultFromDB.updatedAt}`);
             }
         }).catch(err => reject(apiResponse.INTERNAL_SERVER_ERROR));
+    });
+};
+
+let updateFetcherCount = (url, mongoSchema) => {
+    let fetcher = mongoSchema._apis.filter(x=>x.url===url);
+    if(_.isEmpty(fetcher)){
+        mongoSchema._apis.push({
+            url: url,
+            hits: 1
+        });
+    }else{
+        fetcher = fetcher.pop();
+        TotalHitsSchema.findOneAndUpdate({'_apis.url': url}, {
+            "$set": {
+                "_apis.$.hits": fetcher.hits + 1
+            }
+        }).catch(err => console.log(err));
+    }
+}
+module.exports.setHits = (url) => {
+    return new Promise((resolve, reject) => {
+        TotalHitsSchema.findOne().then(mongoSchema => {
+            if(mongoSchema){
+                if(url){
+                    updateFetcherCount(url, mongoSchema);
+                }
+                mongoSchema.total_hits += 1;
+                mongoSchema.save().then(resultUpdated => {
+                    apiResponse.SUCCESS.data = resultUpdated;
+                    resolve(apiResponse.SUCCESS);
+                }).catch(err => reject(apiResponse.INTERNAL_SERVER_ERROR));
+            }else{
+                let dataObject = {
+                    _apis: url ? [{url: url, hits: 1}] : [],
+                    total_hits: 1
+                };
+                new TotalHitsSchema(dataObject).save().then(resultUpdated => {
+                    apiResponse.SUCCESS.data = resultUpdated;
+                    resolve(apiResponse.SUCCESS);
+                }).catch(err => reject(apiResponse.INTERNAL_SERVER_ERROR));
+            }
+        }).catch(err => {
+            apiResponse.INTERNAL_SERVER_ERROR.message = MESSAGE_PROPERTIES.DB_ERROR;
+            resolve(apiResponse.INTERNAL_SERVER_ERROR);
+        })
     });
 };

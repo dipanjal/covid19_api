@@ -16,6 +16,7 @@ module.exports.MongoConfig = {
 
 module.exports.Collections = {
     COLL_DAILY_REPORTS: `daily_reports`,
-    COLL_COUNTRIES: `countries`
+    COLL_COUNTRIES: 'countries',
+    COLL_HIT_COUNTER: 'hit_counter'
 };
 
