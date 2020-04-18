@@ -14,6 +14,7 @@ router.get('/history', covidApi.getCovidHistory);
 router.get('/forceUpdate', covidApi.forceUpdateToday);
 
 router.get('/hits', covidApi.getTotalHits);
+router.get('/test', (req, res) => {res.json({status:'ok'})});
 
 router.post('/search', covidApi.searchReports);
 
