@@ -1,4 +1,5 @@
 module.exports = {
+    country_id:0,
     country_name:"",
     total_cases:"",
     new_cases:"",
