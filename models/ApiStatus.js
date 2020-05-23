@@ -22,6 +22,12 @@ module.exports.REMOTE_ERROR = {
     data:null
 };
 
+module.exports.INVALID_ARGUMENT = {
+    code:403,
+    message:"invalid argument",
+    data:null
+};
+
 let additionalInfo = {
     message: "this api is still in progress, we are trying so hard to give our best",
     endpoints:[

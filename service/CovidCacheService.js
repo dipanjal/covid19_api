@@ -26,12 +26,13 @@ module.exports.cacheKeys = {
 
 module.exports.save = (dataModels, key) => {
     return new Promise(((resolve, reject) => {
-        console.log("*** updating cache ***");
+        console.log("*** cache updating***");
         if(!modelConverter.isEmptyObject(dataModels)){
             let status = covidCache.set(key , dataModels);
             if(status){
                 apiResponse.SUCCESS.data = dataModels;
-                resolve(apiResponse.SUCCESS)
+                resolve(apiResponse.SUCCESS);
+                console.log("*** cache updated***");
             }else{
                 apiResponse.INTERNAL_SERVER_ERROR.message = cacheErrors.SAVE_ERROR;
                 reject(apiResponse.INTERNAL_SERVER_ERROR);
@@ -90,16 +91,16 @@ let getByCountryFromCache = (countryName, yesterdayFlag = false ) => {
         // let keyToSearch = countryName.toLowerCase()+keySuffix;
         // let data = covidCache.get(keyToSearch); //fetching from country cache
 
-        console.log("*** loading country from cache ***");
         let dynamicFunctionCaller = yesterdayFlag ?
             this.getAllReportForYesterdayFromCache : this.getAllReportForTodayFromCache;
 
         dynamicFunctionCaller().then(allDataSuccessResponse => {
-            let dataSingle = _.find(allDataSuccessResponse.data, {country_name: keyToSearch});
+            let dataSingle = _.find(allDataSuccessResponse.data, {country_name: countryName});
             if(dataSingle){
                 // this.save(dataSingle, keyToSearch); //country wise caching
                 apiResponse.SUCCESS.data = dataSingle;
                 resolve(apiResponse.SUCCESS);
+                console.log("*** country loaded from cache server ***");
             }else{
                 reject(apiResponse.RECORD_NOT_FOUND);
             }
