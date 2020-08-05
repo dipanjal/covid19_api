@@ -1,7 +1,7 @@
 
 # CoVID-19 Live API
 
-[![CODE QUALITY](https://www.codefactor.io/repository/github/ftkhanft/covid19_api/badge/master)](https://www.codefactor.io/repository/github/ftkhanft/covid19_api/overview/master)
+[![CODE QUALITY](https://www.codefactor.io/repository/github/ftkhanft/covid19_api/badge/dev-docker)](https://www.codefactor.io/repository/github/ftkhanft/covid19_api/overview/dev-docker)
 
 <br>
 
