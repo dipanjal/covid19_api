@@ -13,7 +13,7 @@ To run the docker container-
 
 ## Indices
 
-This will show some sample requests from this [API](http://covid-rest.herokuapp.com/)
+We will show some sample requests from this [API](http://covid-rest.herokuapp.com/)
 
 It contains following requests
 * [Today](#today)
@@ -6700,5 +6700,5 @@ URL: http://covid-rest.herokuapp.com/yesterday/summary
 
 
 ---
-[Back to top](#covid19_api)
+[Back to top](#covid-19-live-api)
 > Made with &#9829; by [Tanvir Ahmed Khan](https://github.com/ftkhanft) | [RRAD](https://github.com/rrad-bd)
