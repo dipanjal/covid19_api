@@ -67,6 +67,7 @@ URL: http://covid-rest.herokuapp.com/
   I. Example Response: GET ALL DATA Example
   </summary>
   <br>
+
 ```js
         {
             "code": 200,
@@ -2924,6 +2925,7 @@ URL: http://covid-rest.herokuapp.com/
             }
         }
 ```
+
 </details>
 <hr>
 ***Status Code:*** 200
@@ -3028,6 +3030,7 @@ URL: http://covid-rest.herokuapp.com/{{country_name}}
             }
         }
 ```
+
 </details>
 <hr>
 
@@ -3038,6 +3041,7 @@ URL: http://covid-rest.herokuapp.com/{{country_name}}
     II. Example Response: GET BY COUNTRY NAME Failed Example
   </summary>
   <br>
+
 ```js
         {
             "code": 404,
@@ -3315,6 +3319,7 @@ URL: http://covid-rest.herokuapp.com/{{country_name}}
             }
         }
 ```
+
 </details>
 <hr>
 
@@ -3367,6 +3372,7 @@ URL: http://covid-rest.herokuapp.com/yesterday
   I. Example Response: GET ALL DATA FOR YESTERDAY
   </summary>
   <br>
+
 ```js
         {
             "code": 200,
@@ -6224,6 +6230,7 @@ URL: http://covid-rest.herokuapp.com/yesterday
             }
         }
 ```
+
 </details>
 <hr>
 
@@ -6328,6 +6335,7 @@ URL: http://covid-rest.herokuapp.com/yesterday/{{country_name}}
             }
         }
 ```
+
 </details>
 <hr>
 
@@ -6343,7 +6351,8 @@ URL: http://covid-rest.herokuapp.com/yesterday/{{country_name}}
   <br>
 
 
-```js
+    ```js
+
         {
             "code": 404,
             "message": "record not found",
