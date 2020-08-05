@@ -6,7 +6,12 @@
     "start": "node app.js",
     "dev": "nodemon node app.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dipanjal/covid19_api.git"
+  },
   "author": "Dipanjal Maitra",
+  "license": "MIT",
   "dependencies": {
     "axios": "^0.19.0",
     "body-parser": "^1.18.3",
@@ -14,7 +19,7 @@
     "express": "^4.16.4",
     "geoip-lite": "^1.4.1",
     "ipware": "^2.0.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.28",
     "mongodb": "^3.5.5",
@@ -23,7 +28,7 @@
     "node-cache": "^5.1.0"
   },
   "devDependencies": {
-    "nodemon": "^1.19.0"
+    "nodemon": "^2.0.4"
   },
   "engines": {
     "node": "10.x"
