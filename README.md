@@ -51,16 +51,20 @@ It contains following requests
 
 ```bash
 Method: GET
-Type: json
+Type: HTTP
 URL: http://covid-rest.herokuapp.com/
 ```
 
 
 
-***More example Requests/Responses:***
+***Example Requests/Responses:***
 
 
-
+```bash
+Method: GET
+Type: HTTP
+URL: http://covid-rest.herokuapp.com/
+```
 
 <details>
   <summary>
@@ -2927,10 +2931,9 @@ URL: http://covid-rest.herokuapp.com/
 ```
 
 </details>
-<hr>
 
 ***Status Code:*** 200
-
+<hr>
 <br>
 
 
@@ -2949,8 +2952,13 @@ URL: http://covid-rest.herokuapp.com/{{country_name}}
 
 
 
-***More example Requests/Responses:***
+***Example Requests/Responses:***
 
+```bash
+Method: GET
+Type: HTTP
+URL: http://covid-rest.herokuapp.com/china
+```
 
 <details>
   <summary>
@@ -3033,9 +3041,18 @@ URL: http://covid-rest.herokuapp.com/{{country_name}}
 ```
 
 </details>
-<hr>
 
 ***Status Code:*** 200
+
+<hr>
+<br>
+
+
+```bash
+Method: GET
+Type: 
+URL: http://covid-rest.herokuapp.com/absd
+```
 
 <details>
   <summary>
@@ -3322,10 +3339,10 @@ URL: http://covid-rest.herokuapp.com/{{country_name}}
 ```
 
 </details>
-<hr>
 
 ***Status Code:*** 404
-
+<hr>
+<br>
 
 ### 3. GET SUMMARY
 
@@ -3360,13 +3377,19 @@ It contains following requests
 
 ```bash
 Method: GET
-Type: 
+Type: HTTP
 URL: http://covid-rest.herokuapp.com/yesterday
 ```
 
 
 
-***More example Requests/Responses:***
+***Example Requests/Responses:***
+
+```bash
+Method: GET
+Type: HTTP
+URL: http://covid-rest.herokuapp.com/yesterday
+```
 
 <details>
   <summary>
@@ -6233,10 +6256,9 @@ URL: http://covid-rest.herokuapp.com/yesterday
 ```
 
 </details>
-<hr>
 
 ***Status Code:*** 200
-
+<hr>
 <br>
 
 
@@ -6249,13 +6271,19 @@ URL: http://covid-rest.herokuapp.com/yesterday
 
 ```bash
 Method: GET
-Type: 
+Type: HTTP
 URL: http://covid-rest.herokuapp.com/yesterday/{{country_name}}
 ```
 
 
 
-***More example Requests/Responses:***
+***Example Requests/Responses:***
+
+```bash
+Method: GET
+Type: HTTP
+URL: http://covid-rest.herokuapp.com/yesterday/china
+```
 
 <details>
   <summary>
@@ -6338,12 +6366,17 @@ URL: http://covid-rest.herokuapp.com/yesterday/{{country_name}}
 ```
 
 </details>
-<hr>
 
 ***Status Code:*** 200
 
+<hr>
 <br>
 
+```bash
+Method: GET
+Type: HTTP
+URL: http://covid-rest.herokuapp.com/yesterday/ancd
+```
 
 <details>
   <summary>
@@ -6631,10 +6664,10 @@ URL: http://covid-rest.herokuapp.com/yesterday/{{country_name}}
 ```
 
 </details>
-<hr>
 
 ***Status Code:*** 404
 
+<hr>
 <br>
 
 
