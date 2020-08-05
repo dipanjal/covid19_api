@@ -2928,6 +2928,7 @@ URL: http://covid-rest.herokuapp.com/
 
 </details>
 <hr>
+
 ***Status Code:*** 200
 
 <br>
@@ -6351,8 +6352,7 @@ URL: http://covid-rest.herokuapp.com/yesterday/{{country_name}}
   <br>
 
 
-    ```js
-
+```js
         {
             "code": 404,
             "message": "record not found",
