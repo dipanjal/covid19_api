@@ -2946,7 +2946,7 @@ URL: http://covid-rest.herokuapp.com/
 
 ```bash
 Method: GET
-Type: 
+Type: HTTP
 URL: http://covid-rest.herokuapp.com/{{country_name}}
 ```
 
@@ -3050,7 +3050,7 @@ URL: http://covid-rest.herokuapp.com/china
 
 ```bash
 Method: GET
-Type: 
+Type: HTTP
 URL: http://covid-rest.herokuapp.com/absd
 ```
 
@@ -3352,7 +3352,7 @@ URL: http://covid-rest.herokuapp.com/absd
 
 ```bash
 Method: GET
-Type: json
+Type: HTTP
 URL: http://covid-rest.herokuapp.com/summary
 ```
 
@@ -6680,8 +6680,8 @@ URL: http://covid-rest.herokuapp.com/yesterday/ancd
 
 ```bash
 Method: GET
-Type: 
-URL: http://localhost:5000/yesterday/summary
+Type: HTTP
+URL: http://covid-rest.herokuapp.com/yesterday/summary
 ```
 
 
