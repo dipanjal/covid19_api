@@ -2,7 +2,7 @@
 # CoVID-19 Live API
 ```API service for CoVID-19 daily update```
 
-## Running the api using Docker
+## Running the api server locally using Docker
 First go to the root directory of the project then use following commands.\
 To build the container-
 
