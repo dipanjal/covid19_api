@@ -10,9 +10,8 @@ If you don't want to use external mongo server then check our [deb-mongo-docker]
 a fully functional mongoDb server instance configured to the api.\
 <br>
 
-#### Go to the root directory of the project then use following commands.\
+#### Make sure the docker demon is running then go to the root directory of the project and use following commands.
 
-<br>
 To build the container-
 
     docker-compose build
