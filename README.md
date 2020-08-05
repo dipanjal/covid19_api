@@ -3,10 +3,12 @@
 ```API service for CoVID-19 daily update```
 
 ## Running the api server locally using Docker
-Go to the root directory of the project then use following commands.\
+
+####Go to the root directory of the project then use following commands.\
 This docker container will not include any mongo server. You have have to configure your won mongo instance informations in "/configuration/DBConfig.js".\
+<br>
 If you don't want to use external mongo server then check our [deb-mongo-docker Branch](https://github.com/FTKhanFT/covid19_api/tree/dev-mongo-docker). That container includes
-a fully functional mongoDb instance configured to the api.
+a fully functional mongoDb instance configured to the api.\
 <br>
 To build the container-
 
