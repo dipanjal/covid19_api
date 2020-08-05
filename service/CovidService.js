@@ -1,7 +1,7 @@
 let covidScrapper = require('./CovidScrapper');
 let cacheService = require('./CovidCacheService');
-let modelConverter = require('../helpers/ModelConverter');
-let apiResponse = require('../models/ApiStatus');
+let _ = require('../helpers/ModelConverter');
+let _ = require('../models/ApiStatus');
 let covidDBService = require('./CovidDBService');
 
 const Private = {
@@ -21,11 +21,11 @@ module.exports.getAllCountryReportsForToday = () => {
     return new Promise(((resolve, reject) => {
         cacheService.getAllReportForTodayFromCache()
             .then(cachedResponse => resolve(cachedResponse))
-            .catch( cacheErrResponse => {
+            .catch( _ => {
                 covidDBService.getReportForTodayFromDB().then(dbResponse => {
                     resolve(dbResponse);
                     cacheService.save(dbResponse.data, cacheService.cacheKeys.ALL_COVID_DATA_TODAY);
-                }).catch(errResponse => {
+                }).catch(_ => {
                     Private.getFromScrapperAndUpdate().then(response => resolve(response)).catch(err => reject(err));
                 })
             });
@@ -36,7 +36,7 @@ module.exports.getAllCountryReportsForYesterday = () => {
     return new Promise(((resolve, reject) => {
         cacheService.getAllReportForYesterdayFromCache()
             .then(cachedResponse => resolve(cachedResponse))
-            .catch( cacheErrResponse => {
+            .catch( _ => {
                 covidScrapper.getAllReportsForYesterdayFromScrapper()
                     .then(scrappedResponse => {
                         resolve(scrappedResponse);
@@ -51,7 +51,7 @@ module.exports.getCovidSummaryForToday = () => {
     return new Promise(((resolve, reject) => {
         cacheService.getSummaryForTodayFromCache().then(resposne => {
             resolve(resposne);
-        }).catch(errResp => {
+        }).catch(_ => {
             covidScrapper.getSummaryForTodayFromScrapper().then(scrappedResponse => {
                 cacheService.save(scrappedResponse.data, cacheService.cacheKeys.COVID_SUMMARY_TODAY);
                 resolve(scrappedResponse);
@@ -65,7 +65,7 @@ module.exports.getCovidSummaryForYesterday = () => {
     return new Promise(((resolve, reject) => {
         cacheService.getSummaryForYesterdayFromCache().then(resposne => {
             resolve(resposne);
-        }).catch(errResp => {
+        }).catch(_ => {
             covidScrapper.getSummaryForYesterdayFromScrapper()
                 .then(scrappedResponse => {
                     resolve(scrappedResponse);
@@ -79,10 +79,10 @@ module.exports.getReportByCountryForToday = (countryName) => {
     return new Promise(((resolve, reject) => {
         cacheService.getReportByCountryForTodayFromCache(countryName)
             .then(dataResposne => resolve(dataResposne))
-            .catch(errResponse => {
+            .catch(_ => {
                 covidDBService.getReportByCountryForTodayFromDB(countryName)
                     .then(resonse => resolve(resonse))
-                    .catch(errResponse => {
+                    .catch(_ => {
                         covidScrapper.getReportByCountryFroTodayFromScrapper(countryName)
                             .then(dataResponse => {
                                 resolve(dataResponse);
@@ -98,7 +98,7 @@ module.exports.getReportByCountryForYesterday = (countryName) => {
         let suffix = '_yesterday';
         cacheService.getReportByCountryForYesterdayFromCache(countryName)
             .then(dataResposne => resolve(dataResposne))
-            .catch(errResponse => {
+            .catch(_ => {
                 covidScrapper.getReportByCountryForYesterdayFromScrapper(countryName)
                     .then(dataResponse => {
                         resolve(dataResponse);

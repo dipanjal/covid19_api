@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const _ = require('mongoose');
 const _ = require('lodash');
 const dbSettings = require('../configuration/AppSettings').DBSettings;
 const dateHelper = require('../helpers/DateTimeHelper');
@@ -117,7 +117,7 @@ module.exports.getReportForTodayFromDB = () => {
                         reject(apiResponse.RECORD_NOT_FOUND);
                 }else
                     reject(apiResponse.RECORD_NOT_FOUND);
-            }).catch(err => {
+            }).catch(_ => {
                 apiResponse.INTERNAL_SERVER_ERROR.message = MESSAGE_PROPERTIES.DB_ERROR;
                 reject(apiResponse.INTERNAL_SERVER_ERROR);
             });
@@ -155,7 +155,7 @@ module.exports.saveReportsInDB = (covidReportData, date) => {
                         resolve(apiResponse.SUCCESS);
                         console.log(`report DB was last updated at ${result.updatedAt}`);
                         console.log(`report DB updated at ${resultUpdated.updatedAt}`);
-                    }).catch(err => reject(apiResponse.INTERNAL_SERVER_ERROR));
+                    }).catch(_ => reject(apiResponse.INTERNAL_SERVER_ERROR));
                 }else{
                     resolve(apiResponse.SUCCESS);
                     console.log("nothing to be updated in DB");
@@ -214,7 +214,7 @@ module.exports.forceUpdateDB = (data, dateString) => {
                 resolve(apiResponse.SUCCESS.data);
                 console.log(`report DB updated at ${resultFromDB.updatedAt}`);
             }
-        }).catch(err => reject(apiResponse.INTERNAL_SERVER_ERROR));
+        }).catch(_ => reject(apiResponse.INTERNAL_SERVER_ERROR));
     });
 };
 
@@ -254,9 +254,9 @@ module.exports.setHits = (url) => {
                 new TotalHitsSchema(dataObject).save().then(resultUpdated => {
                     apiResponse.SUCCESS.data = resultUpdated;
                     resolve(apiResponse.SUCCESS);
-                }).catch(err => reject(apiResponse.INTERNAL_SERVER_ERROR));
+                }).catch(_ => reject(apiResponse.INTERNAL_SERVER_ERROR));
             }
-        }).catch(err => {
+        }).catch(_ => {
             apiResponse.INTERNAL_SERVER_ERROR.message = MESSAGE_PROPERTIES.DB_ERROR;
             resolve(apiResponse.INTERNAL_SERVER_ERROR);
         })

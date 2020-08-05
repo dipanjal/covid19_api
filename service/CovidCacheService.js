@@ -4,7 +4,7 @@ const modelConverter = require('../helpers/ModelConverter');
 const _ = require('lodash');
 
 const apiResponse = require('../models/ApiStatus');
-const covidLogger = require('../logger/CovidCustomLogger');
+const _ = require('../logger/CovidCustomLogger');
 
 let covidCache = new NodeCache({
     stdTTL: cacheSettings.stdTTL,
@@ -104,7 +104,7 @@ let getByCountryFromCache = (countryName, yesterdayFlag = false ) => {
             }else{
                 reject(apiResponse.RECORD_NOT_FOUND);
             }
-        }).catch(err => reject(apiResponse.INTERNAL_SERVER_ERROR))
+        }).catch(_ => reject(apiResponse.INTERNAL_SERVER_ERROR))
     }))
 };
 

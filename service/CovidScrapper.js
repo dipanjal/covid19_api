@@ -4,7 +4,7 @@ const _ = require('lodash');
 
 let CovidReportModel = require('../models/CovidReportModel');
 let modelConverter = require('../helpers/ModelConverter');
-let covidLogger = require('../logger/CovidCustomLogger');
+let _ = require('../logger/CovidCustomLogger');
 
 let apiStatus = require('../models/ApiStatus');
 
