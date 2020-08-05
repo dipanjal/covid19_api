@@ -79,10 +79,10 @@ module.exports.getReportByCountryForToday = (countryName) => {
     return new Promise(((resolve, reject) => {
         cacheService.getReportByCountryForTodayFromCache(countryName)
             .then(dataResposne => resolve(dataResposne))
-            .catch(errResponse => {
+            .catch(_ => {
                 covidDBService.getReportByCountryForTodayFromDB(countryName)
                     .then(resonse => resolve(resonse))
-                    .catch(errResponse => {
+                    .catch(_ => {
                         covidScrapper.getReportByCountryFroTodayFromScrapper(countryName)
                             .then(dataResponse => {
                                 resolve(dataResponse);

@@ -30,6 +30,7 @@ let CoreModule = {
         return new Promise((resolve, reject) => {
             let $ = cheerio.load(dom);
             let modelKeys = Object.keys(CovidReportModel);
+            let ignoreIndex = [0];
             let covidReports = [];
             try{
                 let tbody = yesterday ? $('#main_table_countries_yesterday tbody').eq(childNo):
@@ -39,13 +40,15 @@ let CoreModule = {
 
                 $(tbody).find('tr').each((index,tr)=>{
                     let data = {};
+                    let keyIndex = 0;
                     $(tr).find('td').each((i,td)=>{
                         let value = CoreModule.sanitizeValues($(td).text()).toLowerCase();
                         if(i === 0 && modelConverter.isEmptyString(value))
                             return false;
 
-                        if(i < modelKeys.length){
-                            let key = modelKeys[i];
+                        /** if the index is not restricted */
+                        if(i < modelKeys.length && !ignoreIndex.includes(i)){
+                            let key = modelKeys[keyIndex++];
                             if(key) data[key] = value ? value : '';
                         }
                     });
@@ -89,15 +92,16 @@ let Privates = {
         scrapCovidSummaryFromUrl: (reqUrl, yesterdayFlag = false) => {
             return new Promise(((resolve, reject) => {
                 CoreModule.loadPage(reqUrl)
-                    .then(dom => {return CoreModule.scrapTableFromDom(dom,1, yesterdayFlag)})
+                    .then(dom => {return CoreModule.scrapTableFromDom(dom,2, yesterdayFlag)})
                     .then(covidReportsSuccessResponse => {
                         let obj = covidReportsSuccessResponse.data[0];
                         obj.country_name = 'world';
                         covidReportsSuccessResponse.data = obj;
                         resolve(covidReportsSuccessResponse);
                     })
-                    .catch(errResponse => {
-                        reject(errResponse);
+                    .catch(err => {
+                        console.log(err.message);
+                        reject(apiStatus.INTERNAL_SERVER_ERROR);
                     });
             }));
         },
