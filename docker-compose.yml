@@ -1,7 +1,8 @@
 version: '3'
 services:
   api:
-    image: "ftkhanft/covid19_api"
+    container_name: api
+    image: "ftkhanft/covid19_bd"
     build: .
     command: "node app.js"
     ports:

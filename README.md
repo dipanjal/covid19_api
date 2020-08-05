@@ -3378,9 +3378,9 @@ It contains following requests
 
 #### [Yesterday](#yesterday)
 
-  * [GET ALL DATA FOR YESTERDAY](#1-get-all-data-for-yesterday)
-  * [GET BY COUNTRY NAME FOR YESTERDAY](#2-get-by-country-name-for-yesterday)
-  * [GET SUMMARY FOR YESTERDAY](#3-get-summary-for-yesterday)
+* [GET ALL DATA FOR YESTERDAY](#1-get-all-data-for-yesterday)
+* [GET BY COUNTRY NAME FOR YESTERDAY](#2-get-by-country-name-for-yesterday)
+* [GET SUMMARY FOR YESTERDAY](#3-get-summary-for-yesterday)
 
 
 
