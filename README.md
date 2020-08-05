@@ -2924,7 +2924,7 @@ URL: http://covid-rest.herokuapp.com/
             }
         }
 ```
-<details>
+</details>
 <hr>
 ***Status Code:*** 200
 
@@ -3028,7 +3028,7 @@ URL: http://covid-rest.herokuapp.com/{{country_name}}
             }
         }
 ```
-<details>
+</details>
 <hr>
 
 ***Status Code:*** 200
@@ -3315,7 +3315,7 @@ URL: http://covid-rest.herokuapp.com/{{country_name}}
             }
         }
 ```
-<details>
+</details>
 <hr>
 
 ***Status Code:*** 404
@@ -3364,7 +3364,7 @@ URL: http://covid-rest.herokuapp.com/yesterday
 
 <details>
   <summary>
-  ##### I. Example Response: GET ALL DATA FOR YESTERDAY
+  I. Example Response: GET ALL DATA FOR YESTERDAY
   </summary>
   <br>
 ```js
@@ -6224,7 +6224,7 @@ URL: http://covid-rest.herokuapp.com/yesterday
             }
         }
 ```
-<details>
+</details>
 <hr>
 
 ***Status Code:*** 200
@@ -6251,7 +6251,7 @@ URL: http://covid-rest.herokuapp.com/yesterday/{{country_name}}
 
 <details>
   <summary>
-  ##### I. Example Response: GET BY COUNTRY NAME FOR YESTERDAY Succes example
+  I. Example Response: GET BY COUNTRY NAME FOR YESTERDAY Succes example
   </summary>
   <br>
 
@@ -6328,7 +6328,7 @@ URL: http://covid-rest.herokuapp.com/yesterday/{{country_name}}
             }
         }
 ```
-<details>
+</details>
 <hr>
 
 ***Status Code:*** 200
@@ -6338,7 +6338,7 @@ URL: http://covid-rest.herokuapp.com/yesterday/{{country_name}}
 
 <details>
   <summary>
-  ##### II. Example Response: GET BY COUNTRY NAME FOR YESTERDAY Failed Example
+  II. Example Response: GET BY COUNTRY NAME FOR YESTERDAY Failed Example
   </summary>
   <br>
 
@@ -6621,7 +6621,7 @@ URL: http://covid-rest.herokuapp.com/yesterday/{{country_name}}
         }
 ```
 
-<details>
+</details>
 <hr>
 
 ***Status Code:*** 404
