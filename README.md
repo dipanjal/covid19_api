@@ -6371,18 +6371,18 @@ URL: http://covid-rest.herokuapp.com/yesterday/china
 
 <hr>
 <br>
+<details>
+  <summary>
+  II. Example Response: GET BY COUNTRY NAME FOR YESTERDAY Failed Example
+  </summary>
+  <br>
 
 ```bash
 Method: GET
 Type: HTTP
 URL: http://covid-rest.herokuapp.com/yesterday/ancd
 ```
-
-<details>
-  <summary>
-  II. Example Response: GET BY COUNTRY NAME FOR YESTERDAY Failed Example
-  </summary>
-  <br>
+<br>
 
 
 ```js
