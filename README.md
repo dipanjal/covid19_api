@@ -43,11 +43,11 @@ It contains following requests
 ## Today
 It contains following requests
 
-#### Today
+#### [Today](#today)
 
-* GET ALL DATA
-* GET BY COUNTRY NAME
-* GET SUMMARY
+* [GET ALL DATA](#1-get-all-data)
+* [GET BY COUNTRY NAME](#2-get-by-country-name)
+* [GET SUMMARY](#3-get-summary)
 
 
 
@@ -3373,14 +3373,14 @@ URL: http://covid-rest.herokuapp.com/summary
 
 
 
-## Yesterday
+## [Yesterday](#yesterday)
 It contains following requests
 
-#### Yesterday
+#### [Yesterday](#yesterday)
 
-* GET ALL DATA FOR YESTERDAY
-* GET BY COUNTRY NAME FOR YESTERDAY
-* GET SUMMARY FOR YESTERDAY
+  * [GET ALL DATA FOR YESTERDAY](#1-get-all-data-for-yesterday)
+  * [GET BY COUNTRY NAME FOR YESTERDAY](#2-get-by-country-name-for-yesterday)
+  * [GET SUMMARY FOR YESTERDAY](#3-get-summary-for-yesterday)
 
 
 
