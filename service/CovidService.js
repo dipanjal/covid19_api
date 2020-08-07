@@ -1,7 +1,5 @@
 let covidScrapper = require('./CovidScrapper');
 let cacheService = require('./CovidCacheService');
-let _ = require('../helpers/ModelConverter');
-let _ = require('../models/ApiStatus');
 let covidDBService = require('./CovidDBService');
 
 const Private = {
@@ -119,7 +117,7 @@ module.exports.getCovidHistory = () => {
 
 module.exports.getAvailableCountries = () => {
     return new Promise((resolve, reject) => {
-        cacheService.getAvailableCountriesFromCache().then(response => resolve(response)).catch(errResposne => {
+        cacheService.getAvailableCountriesFromCache().then(response => resolve(response)).catch(_ => {
             covidScrapper.getAvailableCountriesFromScrapper().then(response => {
                 resolve(response);
                 cacheService.save(response.data, cacheService.cacheKeys.AVAILABLE_COUNTRIES);

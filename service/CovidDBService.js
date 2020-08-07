@@ -1,4 +1,3 @@
-const _ = require('mongoose');
 const _ = require('lodash');
 const dbSettings = require('../configuration/AppSettings').DBSettings;
 const dateHelper = require('../helpers/DateTimeHelper');
@@ -147,7 +146,7 @@ module.exports.saveReportsInDB = (covidReportData, date) => {
                     new CovidReportSchema({_data: covidReportData}).save().then(result =>{
                         console.log('new report inserted in DB');
                         resolve(apiResponse.SUCCESS);
-                    }).catch(err => reject(apiResponse.INTERNAL_SERVER_ERROR));
+                    }).catch(_ => reject(apiResponse.INTERNAL_SERVER_ERROR));
                 }else if(!dateHelper.isDBDataAlive(result.updatedAt)){
                     result._data = covidReportData;
                     console.log("updating DB....");
@@ -160,7 +159,7 @@ module.exports.saveReportsInDB = (covidReportData, date) => {
                     resolve(apiResponse.SUCCESS);
                     console.log("nothing to be updated in DB");
                 }
-            }).catch(err => reject(apiResponse.INTERNAL_SERVER_ERROR));
+            }).catch(_ => reject(apiResponse.INTERNAL_SERVER_ERROR));
         }else{
             apiResponse.INVALID_ARGUMENT.message = MESSAGE_PROPERTIES.DB_READONLY_ERROR;
             reject(apiResponse.INVALID_ARGUMENT);
@@ -245,7 +244,7 @@ module.exports.setHits = (url) => {
                 mongoSchema.save().then(resultUpdated => {
                     apiResponse.SUCCESS.data = resultUpdated;
                     resolve(apiResponse.SUCCESS);
-                }).catch(err => reject(apiResponse.INTERNAL_SERVER_ERROR));
+                }).catch(_ => reject(apiResponse.INTERNAL_SERVER_ERROR));
             }else{
                 let dataObject = {
                     _apis: url ? [{url: url, hits: 1}] : [],
@@ -269,8 +268,8 @@ module.exports.getTotalHits = () => {
             data._apis = _.sortBy(data._apis, 'hits').reverse();
             apiResponse.SUCCESS.data = data;
             resolve(apiResponse.SUCCESS);
-        }).catch(err => {
-            apiResponse.INTERNAL_SERVER_ERROR.message = err.message || MESSAGE_PROPERTIES.DB_ERROR;
+        }).catch(_ => {
+            apiResponse.INTERNAL_SERVER_ERROR.message = MESSAGE_PROPERTIES.DB_ERROR;
             reject(apiResponse.INTERNAL_SERVER_ERROR);
         })
     })
