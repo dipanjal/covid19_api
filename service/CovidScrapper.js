@@ -4,7 +4,7 @@ const _ = require('lodash');
 
 let CovidReportModel = require('../models/CovidReportModel');
 let modelConverter = require('../helpers/ModelConverter');
-let covidLogger = require('../logger/CovidCustomLogger');
+let validator = require('../helpers/ExpressionValidator');
 
 let apiStatus = require('../models/ApiStatus');
 
@@ -12,7 +12,7 @@ let requestUrl = 'https://www.worldometers.info/coronavirus/';
 
 let CoreModule = {
     sanitizeValues: (valueString) => {
-        return valueString.trim().replace(new RegExp("[\+,]+","gm"),'');
+        return valueString.trim().replace(new RegExp("[\+,:]+","gm"),'');
     },
     loadPage: (requestUrl) => {
         return new Promise((resolve, reject) => {
@@ -30,6 +30,7 @@ let CoreModule = {
         return new Promise((resolve, reject) => {
             let $ = cheerio.load(dom);
             let modelKeys = Object.keys(CovidReportModel);
+            let ignoreIndex = childNo === 0 ? [0] : [0,7];
             let covidReports = [];
             try{
                 let tbody = yesterday ? $('#main_table_countries_yesterday tbody').eq(childNo):
@@ -39,13 +40,15 @@ let CoreModule = {
 
                 $(tbody).find('tr').each((index,tr)=>{
                     let data = {};
+                    let keyIndex = 0;
                     $(tr).find('td').each((i,td)=>{
                         let value = CoreModule.sanitizeValues($(td).text()).toLowerCase();
-                        if(i === 0 && modelConverter.isEmptyString(value))
-                            return false;
+                        /** for all country report, ignoring world row */
+                        if(childNo === 0 && i === 0 && modelConverter.isEmptyString(value)) return false;
 
-                        if(i < modelKeys.length){
-                            let key = modelKeys[i];
+                        /** if the index is not restricted */
+                        if(keyIndex < modelKeys.length && !ignoreIndex.includes(i)) {
+                            let key = modelKeys[keyIndex++];
                             if(key) data[key] = value ? value : '';
                         }
                     });
@@ -89,15 +92,16 @@ let Privates = {
         scrapCovidSummaryFromUrl: (reqUrl, yesterdayFlag = false) => {
             return new Promise(((resolve, reject) => {
                 CoreModule.loadPage(reqUrl)
-                    .then(dom => {return CoreModule.scrapTableFromDom(dom,1, yesterdayFlag)})
+                    .then(dom => {return CoreModule.scrapTableFromDom(dom,2, yesterdayFlag)})
                     .then(covidReportsSuccessResponse => {
                         let obj = covidReportsSuccessResponse.data[0];
                         obj.country_name = 'world';
                         covidReportsSuccessResponse.data = obj;
                         resolve(covidReportsSuccessResponse);
                     })
-                    .catch(errResponse => {
-                        reject(errResponse);
+                    .catch(err => {
+                        console.log(err.message);
+                        reject(apiStatus.INTERNAL_SERVER_ERROR);
                     });
             }));
         },
@@ -169,6 +173,7 @@ module.exports.getAllReportsForYesterdayFromScrapper = () => {
 };*/
 module.exports.getSummaryForTodayFromScrapper = () => {
     return Privates.Summary.scrapSummaryForToday(requestUrl);
+    // return Privates.Country.scrapCountrySpecificDataForToday(requestUrl, 'world');
 };
 
 module.exports.getSummaryForYesterdayFromScrapper = () => {
