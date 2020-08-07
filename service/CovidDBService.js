@@ -1,5 +1,5 @@
 const _ = require('lodash');
-
+const dbSettings = require('../configuration/AppSettings').DBSettings;
 const dateHelper = require('../helpers/DateTimeHelper');
 const CovidReportSchema = require('../db/schema/DailyReportsSchema');
 const TotalHitsSchema = require('../db/schema/TotalHits');
@@ -8,7 +8,9 @@ const modelConverter = require('../helpers/ModelConverter');
 
 let MESSAGE_PROPERTIES = {
     DB_ERROR : 'something is wrong in db',
-    RECORD_NOT_FOUND_IN_DB: 'no item found in db'
+    RECORD_NOT_FOUND_IN_DB: 'no item found in db',
+    DB_READONLY_ERROR: 'db is readonly',
+    DB_FETCH_ERROR: 'db is readonly'
 };
 
 let Private = {
@@ -18,15 +20,19 @@ let Private = {
      */
     findLatestReportByQuery: (queryBlock) => {
         return new Promise((resolve, reject) => {
-            queryBlock = queryBlock || {
-                createdAt : { $gte: dateHelper.getStartOfTodayAsDate(), $lte: dateHelper.getEndOfTodayAsDate()}
-            };
+            if(!dbSettings.fetch_from_db){
+                apiResponse.INVALID_ARGUMENT.message = MESSAGE_PROPERTIES.DB_FETCH_ERROR;
+                reject(apiResponse.INVALID_ARGUMENT);
+            }else{
+                queryBlock = queryBlock || {
+                    createdAt : { $gte: dateHelper.getStartOfTodayAsDate(), $lte: dateHelper.getEndOfTodayAsDate()}
+                };
+                CovidReportSchema.findOne()
+                    .where(queryBlock).sort({ createdAt: -1 })
+                    .then(result => resolve(result))
+                    .catch(err => reject(err));
+            }
 
-            CovidReportSchema.findOne()
-                .where(queryBlock).sort({ createdAt: -1 })
-                .then(result => {
-                    resolve(result)
-                }).catch(err => reject(err));
         });
     },
     findLatestReport: (date) => {
@@ -51,59 +57,74 @@ let Private = {
     },
     findReportInDBByQuery : (payloads) => {
         return new Promise((resolve, reject) => {
-            let searchQuery = Private.buildSearchQueryFromPayloads(payloads);
-            CovidReportSchema.find()
-                .where(searchQuery).sort({ createdAt: 1 })
-                .then(resultFromDB => {
-                    return modelConverter.fromMongoCollectionToCovidViewModelList(resultFromDB);
-                }).then(viewAbleList => {
-                apiResponse.SUCCESS.data = viewAbleList;
-                resolve(apiResponse.SUCCESS);
-            }).catch(err =>{
-                apiResponse.INTERNAL_SERVER_ERROR.message = err.message || apiResponse.INTERNAL_SERVER_ERROR.message;
-                reject(apiResponse.INTERNAL_SERVER_ERROR);
-            });
+            if(!dbSettings.fetch_from_db){
+                apiResponse.INVALID_ARGUMENT.message = MESSAGE_PROPERTIES.DB_FETCH_ERROR;
+                reject(apiResponse.INVALID_ARGUMENT);
+            }else{
+                let searchQuery = Private.buildSearchQueryFromPayloads(payloads);
+                CovidReportSchema.find()
+                    .where(searchQuery).sort({ createdAt: 1 })
+                    .then(resultFromDB => {
+                        return modelConverter.fromMongoCollectionToCovidViewModelList(resultFromDB);
+                    }).then(viewAbleList => {
+                    apiResponse.SUCCESS.data = viewAbleList;
+                    resolve(apiResponse.SUCCESS);
+                }).catch(err =>{
+                    apiResponse.INTERNAL_SERVER_ERROR.message = err.message || apiResponse.INTERNAL_SERVER_ERROR.message;
+                    reject(apiResponse.INTERNAL_SERVER_ERROR);
+                });
+            }
         });
     },
     getAllFromDB: () => {
         return new Promise((resolve, reject) => {
-            CovidReportSchema.find().sort({createdAt: -1}).then(dataList => {
-                if(modelConverter.isEmptyArray(dataList)){
-                    resolve(apiResponse.RECORD_NOT_FOUND);
-                }else{
-                    return modelConverter.fromMongoCollectionToCovidViewModelList(dataList);
-                }
-            }).then(listOfViewableData => {
-                apiResponse.SUCCESS.data = listOfViewableData;
-                resolve(apiResponse.SUCCESS);
-            }).catch( err => {
-                apiResponse.INTERNAL_SERVER_ERROR.message = err.message || apiResponse.INTERNAL_SERVER_ERROR.message;
-                reject(apiResponse.INTERNAL_SERVER_ERROR);
-            })
+            if(!dbSettings.fetch_from_db){
+                apiResponse.INVALID_ARGUMENT.message = MESSAGE_PROPERTIES.DB_FETCH_ERROR;
+                reject(apiResponse.INVALID_ARGUMENT);
+            }else{
+                CovidReportSchema.find().sort({createdAt: -1}).then(dataList => {
+                    if(modelConverter.isEmptyArray(dataList)){
+                        resolve(apiResponse.RECORD_NOT_FOUND);
+                    }else{
+                        return modelConverter.fromMongoCollectionToCovidViewModelList(dataList);
+                    }
+                }).then(listOfViewableData => {
+                    apiResponse.SUCCESS.data = listOfViewableData;
+                    resolve(apiResponse.SUCCESS);
+                }).catch( err => {
+                    apiResponse.INTERNAL_SERVER_ERROR.message = err.message || apiResponse.INTERNAL_SERVER_ERROR.message;
+                    reject(apiResponse.INTERNAL_SERVER_ERROR);
+                })
+            }
         });
     }
 };
 
 module.exports.getReportForTodayFromDB = () => {
     return new Promise((resolve, reject) => {
-        Private.findLatestReport().then(result => {
-            if(result){
-                if(dateHelper.isDBDataAlive(result.updatedAt)){
-                    console.log("fetched reports from DB");
-                    apiResponse.SUCCESS.data = modelConverter.convertFromMongoModelToCovidReportViewModel(result._data);
-                    resolve(apiResponse.SUCCESS);
+        if(!dbSettings.fetch_from_db){
+            apiResponse.INVALID_ARGUMENT.message = MESSAGE_PROPERTIES.DB_FETCH_ERROR;
+            reject(apiResponse.INVALID_ARGUMENT);
+        }else{
+            Private.findLatestReport().then(result => {
+                if(result){
+                    if(dateHelper.isDBDataAlive(result.updatedAt)){
+                        console.log("fetched reports from DB");
+                        apiResponse.SUCCESS.data = modelConverter.convertFromMongoModelToCovidReportViewModel(result._data);
+                        resolve(apiResponse.SUCCESS);
+                    }else
+                        reject(apiResponse.RECORD_NOT_FOUND);
                 }else
                     reject(apiResponse.RECORD_NOT_FOUND);
-            }else
-                reject(apiResponse.RECORD_NOT_FOUND);
-        }).catch(_ => {
-            apiResponse.INTERNAL_SERVER_ERROR.message = MESSAGE_PROPERTIES.DB_ERROR;
-            reject(apiResponse.INTERNAL_SERVER_ERROR);
-        });
+            }).catch(_ => {
+                apiResponse.INTERNAL_SERVER_ERROR.message = MESSAGE_PROPERTIES.DB_ERROR;
+                reject(apiResponse.INTERNAL_SERVER_ERROR);
+            });
+        }
     })
 };
 
-module.exports.getReportByDateFromDB = (dateFrom, dateTo) => {
+/*module.exports.getReportByDateFromDB = (dateFrom, dateTo) => {
     return new Promise((resolve, reject) => {
         let queryBlock = {
             createdAt : { $gte: dateHelper.getDateFromString(dateFrom), $lte: dateHelper.getDateFromString(dateTo)}
@@ -113,31 +134,36 @@ module.exports.getReportByDateFromDB = (dateFrom, dateTo) => {
             .then(result => resolve(result))
             .catch(err => reject(err));
     })
-};
+};*/
 
 module.exports.saveReportsInDB = (covidReportData, date) => {
     return new Promise((resolve, reject) => {
-        Private.findLatestReport(date).then(result => {
-            apiResponse.SUCCESS.data = covidReportData;
-            apiResponse.INTERNAL_SERVER_ERROR.message = MESSAGE_PROPERTIES.DB_ERROR;
-            if(!result){
-                new CovidReportSchema({_data: covidReportData}).save().then(result =>{
-                    console.log('new report inserted in DB');
+        if(dbSettings.update_db){
+            Private.findLatestReport(date).then(result => {
+                apiResponse.SUCCESS.data = covidReportData;
+                apiResponse.INTERNAL_SERVER_ERROR.message = MESSAGE_PROPERTIES.DB_ERROR;
+                if(!result){
+                    new CovidReportSchema({_data: covidReportData}).save().then(result =>{
+                        console.log('new report inserted in DB');
+                        resolve(apiResponse.SUCCESS);
+                    }).catch(_ => reject(apiResponse.INTERNAL_SERVER_ERROR));
+                }else if(!dateHelper.isDBDataAlive(result.updatedAt)){
+                    result._data = covidReportData;
+                    console.log("updating DB....");
+                    result.save().then(resultUpdated => {
+                        resolve(apiResponse.SUCCESS);
+                        console.log(`report DB was last updated at ${result.updatedAt}`);
+                        console.log(`report DB updated at ${resultUpdated.updatedAt}`);
+                    }).catch(_ => reject(apiResponse.INTERNAL_SERVER_ERROR));
+                }else{
                     resolve(apiResponse.SUCCESS);
-                }).catch(_ => reject(apiResponse.INTERNAL_SERVER_ERROR));
-            }else if(!dateHelper.isDBDataAlive(result.updatedAt)){
-                result._data = covidReportData;
-                console.log("updating DB....");
-                result.save().then(resultUpdated => {
-                    resolve(apiResponse.SUCCESS);
-                    console.log(`report DB was last updated at ${result.updatedAt}`);
-                    console.log(`report DB updated at ${resultUpdated.updatedAt}`);
-                }).catch(err => reject(apiResponse.INTERNAL_SERVER_ERROR));
-            }else{
-                resolve(apiResponse.SUCCESS);
-                console.log("nothing to be updated in DB");
-            }
-        }).catch(_ => reject(apiResponse.INTERNAL_SERVER_ERROR));
+                    console.log("nothing to be updated in DB");
+                }
+            }).catch(_ => reject(apiResponse.INTERNAL_SERVER_ERROR));
+        }else{
+            apiResponse.INVALID_ARGUMENT.message = MESSAGE_PROPERTIES.DB_READONLY_ERROR;
+            reject(apiResponse.INVALID_ARGUMENT);
+        }
     });
 };
 
@@ -161,10 +187,11 @@ module.exports.getReportByCountryForTodayFromDB = (countryName) => {
             if(_.isEmpty(data)){
                 reject(apiResponse.RECORD_NOT_FOUND);
             }else{
+                console.log("*** country loaded from db ***");
                 apiResponse.SUCCESS.data = modelConverter.convertFromMongoModelToCovidReportViewModel(data);
                 resolve(apiResponse.SUCCESS);
             }
-        }).catch(_ => reject(apiResponse.INTERNAL_SERVER_ERROR))
+        }).catch(errResponse => reject(errResponse))
     });
 };
 

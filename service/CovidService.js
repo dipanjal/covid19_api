@@ -9,7 +9,7 @@ const Private = {
                 .then(scrappedResponse => {
                     resolve(scrappedResponse);
                     cacheService.save(scrappedResponse.data, cacheService.cacheKeys.ALL_COVID_DATA_TODAY);
-                    covidDBService.saveReportsInDB(scrappedResponse.data);
+                    covidDBService.saveReportsInDB(scrappedResponse.data).catch(errResp => console.log(errResp.message));
                 }).catch(errResponse => reject(errResponse));
         });
     }

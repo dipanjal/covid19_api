@@ -8,7 +8,9 @@ module.exports.CacheSettings = {
 
 module.exports.DBSettings = {
     maxTTL: 1,
-    unitOfTime: 'hour'
+    unitOfTime: 'hour',
+    fetch_from_db: true,
+    update_db: true,
 };
 
 module.exports.APPLICATION_PORT = process.env.PORT || 5000;
