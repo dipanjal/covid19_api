@@ -6714,4 +6714,3 @@ URL: http://covid-rest.herokuapp.com/yesterday/summary
 
 ---
 [Back to top](#covid-19-live-api)
-> Made with &#9829; by [Tanvir Ahmed Khan](https://github.com/ftkhanft) | [RRAD](https://github.com/rrad-bd)
