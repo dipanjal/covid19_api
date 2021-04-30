@@ -3,19 +3,19 @@ const ipware = require('ipware')();
 const geoip = require('geoip-lite');
 const moment = require('moment-timezone');
 
-morgan.token('host', function(req, res) {
+morgan.token('host', function(req, _) {
     return Private.getRealIp(req);
 });
 
-morgan.token('geo-loc', function(req, res) {
+morgan.token('geo-loc', function(req, _) {
     return Private.getGeoIpLocation(req);
 });
 
-morgan.token('param', function(req, res, param) {
+morgan.token('param', function(req, _, param) {
     return req.params[param];
 });
 
-morgan.token('request_at_time', function(req, res, param) {
+morgan.token('request_at_time', function(_, _, _) {
     return moment().tz('Asia/Dhaka').format('DD-MM-YYYY hh:mm:ss A Z');
 });
 
