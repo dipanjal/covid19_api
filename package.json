@@ -9,9 +9,9 @@
   "author": "Dipanjal Maitra",
   "dependencies": {
     "axios": "^0.19.0",
-    "body-parser": "^1.18.3",
+    "body-parser": "^1.20.1",
     "cheerio": "^1.0.0-rc.3",
-    "express": "^4.16.4",
+    "express": "^4.18.2",
     "geoip-lite": "^1.4.1",
     "ipware": "^2.0.0",
     "lodash": "^4.17.15",
